@@ -1,0 +1,17 @@
+.container {
+    width: 85vw;
+    height: 100vh;
+    padding: 15vh 10vw;
+    box-sizing: border-box;
+    background-color: rgba(237, 237, 237, 1);
+}
+
+
+.gridContainer {
+    display: grid;
+    grid-template-rows: 100px 100px 100px; 
+    grid-template-columns: 150px 150px 150px;
+    gap: 10px;
+    background-color: rgba(255, 255, 255, 1);
+}
+

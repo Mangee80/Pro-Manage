@@ -1,11 +1,14 @@
 .board {
     min-width: 290px;
-    width: 400px;
-    max-height: 100%;
-    flex-basis: 290px;
+    width: 400px; /* Minimum width for each board */
+    height: 80vh;
+    max-height: 100vh; /* Height for each board */
+    background-color: #f0f0f0; /* Background color for each board */
+    padding: 10px;
+    border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    margin-bottom: 10px;
 }
   
 .board_header {

@@ -1,0 +1,7 @@
+/* Sidebar.css */
+.sidebar {
+    width: 15vw; /* Sidebar ka fixed width */
+    height: 100vh; /* Sidebar ki height full height honi chahiye */
+    background-color: rgb(191, 211, 172); /* Example background color */
+}
+  

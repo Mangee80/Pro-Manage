@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Home } from "./Pages/Home";
 import {Login} from "./Pages/Loginpage";
 import { Register } from "./Pages/Registerpage";
-import { CreateCardForm } from "../src/Components/Cardform/CreateNewCardForm"
+import { CreateNewCardForm } from "./Components/Cardform/CreateNewCardFom"
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
       <Route path="/" element={<Home/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
-      <Route path="/create" element={<CreateCardForm/>}/>
+      <Route path="/create" element={<CreateNewCardForm />}/>
     </Routes>
   );
 }

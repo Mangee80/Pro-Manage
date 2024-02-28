@@ -1,11 +1,20 @@
 /* Dashboard.css */
 .dashboard-container {
     width: 85vw; 
-    overflow-x: auto; 
+    overflow-x: auto;
+    padding-left: 22px;
+    height: 85vh;
+    box-sizing: border-box;
+    overflow-y: hidden;
 }
-  
+.dashboard-header {
+    height: 15vh;
+    box-sizing: border-box;
+    padding: 17px;
+}
 .dashboard {
     display: flex;
     gap: 20px;
 }
+
   

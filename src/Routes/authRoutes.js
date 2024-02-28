@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/users');
+const User = require('../Models/users');
 
 require('dotenv').config();
 
@@ -79,12 +79,13 @@ router.post('/login', async (req, res) => {
         }
 
         // Create JWT token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign({ user: user.toJSON() }, process.env.JWT_SECRET);
         res.json({
             status: 'SUCCESS',
             message: "You've logged in successfully!",
             token,
-            user: user.name
+            user: user.name,
+            userId: user._id
         });
     } catch (error) {
         errorHandler(res, error);

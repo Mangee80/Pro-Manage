@@ -37,7 +37,8 @@ export const LoginForm = () => {
 
         window.localStorage.setItem("user", responseData.user);
         window.localStorage.setItem("token", responseData.token);
-        navigate("/listing");
+        window.localStorage.setItem("userID", responseData.userId);
+        navigate("/Home");
 
       } catch (error) {
           alert("There was a problem with the request, please try again");

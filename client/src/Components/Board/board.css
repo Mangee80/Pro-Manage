@@ -1,11 +1,12 @@
 .board {
     min-width: 290px;
-    width: 400px; /* Minimum width for each board */
-    height: 80vh;
+    width: 317px; /* Minimum width for each board */
+    height: 79vh;
+    overflow-y: auto;
     max-height: 100vh; /* Height for each board */
     background-color: #f0f0f0; /* Background color for each board */
     padding: 10px;
-    border: 1px solid #ccc;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     margin-bottom: 10px;
@@ -15,20 +16,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 10px;
 }
   
 .board_header_title {
-    font-weight: bold;
-    font-size: 1rem;
-    display: flex;
-    gap: 5px;
-    align-items: center;
+  font-family: var(--font-dm-sans);  
+  font-size: 18.8px;
+  align-items: center;
 }
+
 
 
 .img_container {
     width: 40px;
     height: 40px;
+    cursor: pointer;
 }
 
 .img_container img {
@@ -36,3 +38,26 @@
     max-height: 100%; 
     object-fit: contain;
 }
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+  
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .add-card-button {
+    cursor: pointer;
+    color: rgba(118, 117, 117, 1);
+    font-size: 30px;
+    border-radius: 5px;
+  }
+  
+  .add-card-button:hover {
+    background-color: skyblue;
+  }

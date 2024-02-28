@@ -1,0 +1,87 @@
+.form_Container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 550px;
+  height: 500px;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 18px;
+  box-sizing: border-box;
+  z-index: 5;
+  background-color: #fff;
+  box-shadow: 0px 0px 0px 100vw rgba(47, 47, 47, 0.75);
+}
+
+form label {
+  font-size: 17px;
+  margin-bottom: 8px;
+  font-family: var(--font-dm-sans);
+}
+
+label::after {
+  content: "*";
+  color: red;
+  font-size: smaller;
+}
+
+input[type="text"][name="title"] {
+  border-color: red;
+  width: 98.8%;
+  padding: 7px;
+  padding-left: 17px;
+  margin-bottom: 23px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+
+.priority-clickable-div {
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 8.8px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 20px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 7px;
+}
+
+.checklist-item {
+  margin-bottom: 10px;
+}
+
+.checklist-item input[type="text"] {
+  width: calc(100% - 100px);
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.checklist-item button {
+  padding: 8px 15px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addChecklist {
+  font-size: 17px;
+  font-family: var(--font-dm-sans);
+  color: rgba(118, 117, 117, 1);
+  cursor: pointer;
+}

@@ -16,6 +16,14 @@ app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/card', cardRoutes);
 
+mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log(`Server running on http://localhost:${process.env.PORT}`);
+})
+  .catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+});
+
 app.use("/", async (req, res) => {
   res.status(200).json("Server is up and Running")
 });
@@ -27,7 +35,5 @@ app.use((err, req, res, next) => {
 })
 
 app.listen(process.env.PORT, () => {
-  mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log(`Server running on http://localhost:${process.env.PORT}`))
-    .catch((error) => console.log(error))
+  console.log("backend up");
 });

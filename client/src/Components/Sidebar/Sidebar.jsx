@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Sidebar.css';
+import { useNavigate } from "react-router"
 import codesandbox from '../../assets/icons/codesandbox.png';
 import layout from '../../assets/icons/layout.png';
 import database from '../../assets/icons/database.png';
@@ -8,10 +9,19 @@ import Logout from '../../assets/icons/Logout.png';
 
 const Sidebar = ({ setSelectedComponent }) => {
   const [selectedOption, setSelectedOption] = useState(null);
+  const navigate = useNavigate();
 
   const handleOptionClick = (option) => {
     setSelectedComponent(option);
     setSelectedOption(option);
+    if (option === 'Logout') {
+      // Clear user-related data from local storage
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userID');
+      // Redirect to login page
+      navigate("/");
+    }
   };
 
   return (

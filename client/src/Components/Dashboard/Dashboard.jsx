@@ -39,7 +39,7 @@ function Dashboard() {
       console.error('Error fetching user cards:', error);
     }
   };
-  
+  const userName = localStorage.getItem('user');
   
   
 
@@ -48,7 +48,7 @@ function Dashboard() {
     
     <div style={{display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <div className="dashboard-header">
-          <h1>Dashboard</h1>
+          <h1>Welcome! {userName}</h1>
       </div>
       <div className="dashboard-container">
         <div className="dashboard-content">

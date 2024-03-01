@@ -93,8 +93,9 @@
   .dueDateChip {
     margin-top: 5px;
     background-color: skyblue;
-    padding: 3px;
+    padding: 2px;
     border-radius: 5px;
+    height:auto;
   }
   
   .board-chips {
@@ -104,7 +105,7 @@
   .board-chip {
     display: inline-block;
     background-color: lightgray;
-    padding: 3px 8px;
+    padding: 3px 4px;
     margin-right: 5px;
     border-radius: 3px;
     cursor: pointer;

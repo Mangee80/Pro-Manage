@@ -147,10 +147,10 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
         ))}
       </ul>
 
-      <div style={{display: 'flex', gap: '20px', marginTop: '20px'}}>
+      <div style={{display: 'flex', gap: '10px', marginTop: '20px'}}>
         
           {/* Render due date chip */}
-          <div className="chip due-date">{card.dueDate}</div>
+          <div className="dueDateChip">{card.dueDate}</div>
 
           {/* Render board chips */}
           <div className="board-chips">

@@ -1,0 +1,34 @@
+.analytics-container {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f0f0f0; /* Add background color */
+  padding: 20px; /* Add padding for spacing */
+}
+
+.analytics-left,
+.analytics-right {
+  width: 45%;
+}
+
+.analytics-pair {
+  display: flex;
+  align-items: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background-color: blue;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.analytics-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-field,
+.analytics-data {
+  margin: 4px 0;
+}

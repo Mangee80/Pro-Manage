@@ -36,6 +36,11 @@ const cardSchema = new Schema({
     enum: ['Todo', 'In Progress', 'Done', 'Backlog'],
     required: true,
   },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User', // Reference to the User model
+    required: true
+  }
 });
 
 const Card = mongoose.model('Card', cardSchema);

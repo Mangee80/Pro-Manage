@@ -13,8 +13,15 @@ function Dashboard() {
   
   const fetchUserCards = async () => {
     try {
+      // Retrieve userID from localStorage
+      const userID = localStorage.getItem('userID');
+      
+      // Check if userID is available
+      if (!userID) {
+        throw new Error('User ID not found in localStorage');
+      }
+  
       // Fetch user-specific cards with token included in the headers
-      const userID = localStorage.getItem('userID'); // Retrieve userID from localStorage
       const response = await fetch(`http://localhost:5000/api/card/getcards?userID=${userID}`, {
         method: 'GET',
         headers: {
@@ -27,12 +34,12 @@ function Dashboard() {
       }
   
       const { boards } = await response.json();
-      console.log(boards);
       setBoards(boards);
     } catch (error) {
       console.error('Error fetching user cards:', error);
     }
   };
+  
   
   
 

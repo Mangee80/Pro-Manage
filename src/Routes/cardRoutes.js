@@ -4,11 +4,49 @@ const Card = require('../Models/cards');
 
 // Route to retrieve cards associated with the logged-in user
 
+router.get('/analytics', async (req, res) => {
+  try {
+    // Get the user ID from the request query parameters
+    const userId = req.query.userID;
+    console.log(userId);
+
+    // Aggregate data for different fields belonging to the user
+    const backlogTasks = await Card.countDocuments({ createdBy: userId, tag: 'Backlog' });
+    const lowPriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'Low Priority' });
+    const todoTasks = await Card.countDocuments({ createdBy: userId, tag: 'Todo' });
+    const moderatePriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'Moderate Priority' });
+    const inProgressTasks = await Card.countDocuments({ createdBy: userId, tag: 'In Progress' });
+    const highPriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'High Priority' });
+    const completedTasks = await Card.countDocuments({ createdBy: userId, tag: 'Done' });
+    const dueDateTasks = await Card.countDocuments({ createdBy: userId, dueDate: { $exists: true } });
+    console.log(todoTasks);
+
+    // Return aggregated data
+    res.json({
+      backlogTasks,
+      lowPriorityTasks,
+      todoTasks,
+      moderatePriorityTasks,
+      inProgressTasks,
+      highPriorityTasks,
+      completedTasks,
+      dueDateTasks
+    });
+  } catch (error) {
+    console.error('Error fetching analytics data:', error);
+    res.status(500).json({ error: 'Error fetching analytics data' });
+  }
+});
+
+
+
 
 router.get('/getcards', async (req, res) => {
   try {
     // Extract userID from the request query parameters
-    const userID = req.params.userID;
+    const userID = req.query.userID;
+    console.log("Backend userID: ", userID);
+
     // Retrieve cards created by the logged-in user
     const userCards = await Card.find({ createdBy: userID });
 
@@ -33,6 +71,7 @@ router.get('/getcards', async (req, res) => {
     res.status(500).json({ error: 'Error retrieving user cards' });
   }
 });
+
 
 
 router.post('/createcards', async (req, res) => {

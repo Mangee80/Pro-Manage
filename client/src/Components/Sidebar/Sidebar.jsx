@@ -1,55 +1,53 @@
-// Sidebar.js
-
-import React from 'react';
+import React, { useState } from 'react';
 import './Sidebar.css';
 import codesandbox from '../../assets/icons/codesandbox.png';
-
 import layout from '../../assets/icons/layout.png';
 import database from '../../assets/icons/database.png';
 import settings from '../../assets/icons/settings.png';
 import Logout from '../../assets/icons/Logout.png';
 
-
-
 const Sidebar = ({ setSelectedComponent }) => {
-  
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const handleOptionClick = (option) => {
+    setSelectedComponent(option);
+    setSelectedOption(option);
+  };
+
   return (
     <div className="sidebar">
-      <div>
+      <div className='Heading'>
         <div className='img_container'>
-          <img src={codesandbox}/>
+          <img src={codesandbox} alt="Pro Manage Logo"/>
         </div>
+        <p style={{ marginTop: '4px', fontFamily: 'Poppins, sans-serif', fontWeight: '750', fontSize: '18.8px'}}>Pro Manage</p>
       </div>
-      <div className='comp1' onClick={() => setSelectedComponent('Dashboard')}>
+      <div className={`sidebarOption ${selectedOption === 'Dashboard' ? 'selected' : ''}`} onClick={() => handleOptionClick('Dashboard')}>
         <div className='img_container'>
-          <img src={layout}/>
+          <img src={layout} alt="Dashboard Icon"/>
         </div>
-        Dashboard
+        <p>Dashboard</p>
       </div>
-      <div onClick={() => setSelectedComponent('Analytics')}>
+      <div className={`sidebarOption ${selectedOption === 'Analytics' ? 'selected' : ''}`} onClick={() => handleOptionClick('Analytics')}>
         <div className='img_container'>
-          <img src={database}/>
+          <img src={database} alt="Analytics Icon"/>
         </div>
-        Analytics
+        <p>Analytics</p>
       </div>
-      <div onClick={() => setSelectedComponent('Settings')}>
+      <div className={`sidebarOption ${selectedOption === 'Setting' ? 'selected' : ''}`} onClick={() => handleOptionClick('Setting')}>
         <div className='img_container'>
-          <img src={settings}/>
+          <img src={settings} alt="Settings Icon"/>
         </div>
-        Settings
+        <p>Settings</p>
       </div>
-
-
-      
-      
-      <div>
+      <div className='logoutOption' onClick={() => handleOptionClick('Logout')}>
         <div className='img_container'>
-          <img src={Logout}/>
+          <img src={Logout} alt="Logout Icon"/>
         </div>
+        <p>Logout</p>
       </div>
     </div>
   );
 };
 
 export default Sidebar;
-

@@ -89,27 +89,21 @@
     background-color: rgba(23, 162, 184, 1);
   }
 
-  .chip {
-    display: inline-block;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 8px;
-  }
-  .due-date {
-    margin-top: 10px;
-    background-color: lightgray;
-    padding: 5px;
+ 
+  .dueDateChip {
+    margin-top: 5px;
+    background-color: skyblue;
+    padding: 3px;
     border-radius: 5px;
   }
   
   .board-chips {
-    margin-top: 10px;
+    margin-top: 5px;
   }
   
   .board-chip {
     display: inline-block;
-    background-color: lightblue;
+    background-color: lightgray;
     padding: 3px 8px;
     margin-right: 5px;
     border-radius: 3px;
@@ -117,5 +111,5 @@
   }
   
   .board-chip:hover {
-    background-color: skyblue;
+    background-color: gray;
   }  

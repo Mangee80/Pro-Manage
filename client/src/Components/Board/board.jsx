@@ -35,7 +35,7 @@ function Board({ title, cards }) {
           
           <div className="create-new-card">
             {isFormOpen ? (
-              <CreateNewCardForm />
+              <CreateNewCardForm cardData='null' onCancel={() => setIsFormOpen(false)} />
             ) : (
               <div className="add-card-button" onClick={toggleForm}>
                 + 

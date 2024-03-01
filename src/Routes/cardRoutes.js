@@ -97,5 +97,23 @@ router.put('/updateChecklistItem/:cardId', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-  
+
+
+
+
+router.get('/publiccard/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const card = await Card.findById(id);
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    res.json(card);
+  } catch (error) {
+    console.error('Error fetching card:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 module.exports = router;

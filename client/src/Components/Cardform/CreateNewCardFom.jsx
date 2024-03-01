@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import './CreateNewCardForm.css';
+import del from '../../assets/icons/delete.png'
 import 'react-datepicker/dist/react-datepicker.css';
 
 function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange }) {
@@ -15,22 +16,25 @@ function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChe
     <div className="checklist-item">
       <input type="checkbox" checked={isChecked} onChange={handleChange} />
       <input type="text" value={item.title} onChange={(e) => handleInputChange(index, e.target.value)} />
-      <button onClick={() => handleDeleteChecklistItem(index)}>Delete</button>
+      <div className="deleteDiv" onClick={() => handleDeleteChecklistItem(index)}>
+        <img src={del} alt="delete" />
+      </div>
     </div>
   );
 }
 
-export const CreateNewCardForm = () => {
+export const CreateNewCardForm = ({ cardData, onCancel }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    priorityColor: '',
-    priorityText: '',
-    checklists: [],
-    dueDate: null,
-    tag: 'Todo',
+    title: cardData.title || '',
+    priorityColor: cardData.priorityColor || '',
+    priorityText: cardData.priorityText || '',
+    checklists: cardData.checklists || [],
+    dueDate: cardData.dueDate ? new Date(cardData.dueDate) : null,
+    tag: cardData.tag || 'Todo',
   });
+  
+  
   const [error, setError] = useState('');
-  const [newItemText, setNewItemText] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,7 +96,7 @@ export const CreateNewCardForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.title || !formData.priorityColor || !formData.priorityText) {
+      if (!formData.title || !formData.priorityColor || !formData.priorityText || !formData.checklists.length) {
         setError('Please fill in all required fields');
         return;
       }
@@ -190,6 +194,7 @@ export const CreateNewCardForm = () => {
 
       {error && <div className="error">{error}</div>}
 
+      <button type="button" onClick={onCancel}>Cancel</button>
       <button type="submit">Create Card</button>
     </form>
   );

@@ -1,0 +1,56 @@
+.card-details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Adjust height as needed */
+}
+
+.card-details > div {
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 400px; /* Adjust max-width as needed */
+  width: 100%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+.card-details h2 {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.card-details p {
+  margin-top: 8px;
+}
+
+.checklist {
+  padding-left: 20px;
+}
+
+.checklist li {
+  list-style-type: none;
+  margin-bottom: 8px;
+}
+
+.checklist li input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.due-date {
+  margin-top: 16px;
+  font-style: italic;
+  color: #666;
+}
+
+.checklist {
+  max-height: 150px; /* Adjust max height as needed */
+  overflow-y: auto; /* Add vertical scrollbar when content overflows */
+  padding-left: 20px;
+}
+
+.checklist li {
+  list-style-type: none;
+  margin-bottom: 8px;
+}

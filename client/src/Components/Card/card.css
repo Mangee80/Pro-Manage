@@ -7,7 +7,31 @@
     position: relative; /* Position relative for absolute positioning of toggle button */
     height: auto;
   }
-
+  .dropdown-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+  
+  .dropdown-content {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-option {
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  
+  .dropdown-option:hover {
+    background-color: #f0f0f0;
+  }
 
 
   .cardTitle {
@@ -65,15 +89,6 @@
     background-color: rgba(23, 162, 184, 1);
   }
 
-  .checklists li input[type="checkbox"]:checked {
-    background-color: rgba(23, 162, 184, 1);
-  }
-  
-
-  
-  
-
-  
   .chip {
     display: inline-block;
     padding: 8px;

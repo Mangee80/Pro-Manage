@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Signup.module.css';
-import { useNavigate } from "react-router"
+import { useNavigate } from "react-router";
+
 
 export const RegisterForm = () => {
   
@@ -44,7 +45,7 @@ export const RegisterForm = () => {
       window.localStorage.setItem("user",responseData.user)
       window.localStorage.setItem("name",responseData.name)
       window.localStorage.setItem("token",responseData.token)
-      navigate("/listing")
+      navigate("/");
   
     } catch (error) {
       alert("There was a problem with the request, please try again");
@@ -70,7 +71,7 @@ export const RegisterForm = () => {
   
   return (
     <div className={styles.container}>
-      <h1 className={styles.h1}>Create an Account</h1>
+      <h1 className={styles.h1}>Register</h1>
       <input 
         className={styles.input} 
         name="name" 
@@ -107,8 +108,9 @@ export const RegisterForm = () => {
         placeholder="Confirm Password"
       />
       {errors.confirmPassword && <p className={styles.error}>{errors.confirmPassword}</p>}
-      <button onClick={handleSubmit}  className={styles.button}>Create Account</button>
-      <p className={styles.footer}>Already have an account?<span className={styles.underline}>Sign in</span></p>
+      <button onClick={handleSubmit}  className={styles.button}>Register</button>
+      <p className={styles.footer}>Have an account ?</p>
+      <button onClick={() => navigate("/")}  className={styles.regbutton}>Log In</button>
     </div>
   )
 };

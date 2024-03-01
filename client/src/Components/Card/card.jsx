@@ -1,10 +1,37 @@
 import {React, useState, useEffect} from 'react';
 import './card.css';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
 
 const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   const [checklistItems, setChecklistItems] = useState(card.checklists);
-
+  const [showDropdown, setShowDropdown] = useState(false);
   const [totalCompleted, setTotalCompleted] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+  
+  const handleEdit = () => {
+    // Set isEditing to true when Edit is clicked
+    setIsEditing(true);
+  };
+  const handleShare = () => {
+    // Generate unique link for the card (replace 'cardId' with actual unique identifier for the card)
+    const shareLink = `http://localhost:3000/card/${card._id}`;
+
+    // Copy link to clipboard
+    navigator.clipboard.writeText(shareLink)
+      .then(() => {
+        // Show toast message indicating link has been copied
+        toast.success('Link copied to clipboard');
+      })
+      .catch((error) => {
+        console.error('Error copying link to clipboard:', error);
+        // Show toast message for error, if needed
+      });
+  };
 
    const handleCheckboxChange = async (index) => {
     const updatedChecklistItems = [...checklistItems];
@@ -57,7 +84,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
         } catch (error) {
           console.error('Error updating card tag:', error);
         }
-    };
+  };
     
     // Array of board names
     
@@ -74,6 +101,22 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
         <div className="priority" style={{ backgroundColor: card.priorityColor }}></div>
         <p>{card.priorityText}</p>
       </div>
+
+      {/* Dropdown menu */}
+      <div className="dropdown-container" onClick={toggleDropdown}>
+        &#8942; {/* Three dots icon representing dropdown */}
+        {showDropdown && (
+          <div className="dropdown-content">
+            <div className="dropdown-option" onClick={handleShare}>
+              Share
+            </div>
+            <div className="dropdown-option" onClick={handleEdit}>
+              Edit
+            </div>
+            {/* Other dropdown options: Delete, etc. */}
+          </div>
+        )}
+      </div>      
 
       {/* Render title */}
       <p className='cardTitle' style={{ fontSize: '23px', fontWeight: '800' }}>{card.title}</p>
@@ -104,24 +147,32 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
         ))}
       </ul>
 
-      {/* Render due date chip */}
-      <div className="chip due-date">{card.dueDate}</div>
+      <div style={{display: 'flex', gap: '20px', marginTop: '20px'}}>
+        
+          {/* Render due date chip */}
+          <div className="chip due-date">{card.dueDate}</div>
 
-      {/* Render board chips */}
-      <div className="board-chips">
-        {boardNames.map((boardName) => (
-            // Exclude current board chip
-            card.tag !== boardName && (
-              <div
-                key={boardName}
-                className="chip board-chip"
-                onClick={() => handleBoardChipClick(boardName)}
-              >
-                {boardName}
-              </div>
-            )
-        ))}
+          {/* Render board chips */}
+          <div className="board-chips">
+            {boardNames.map((boardName) => (
+                // Exclude current board chip
+                card.tag !== boardName && (
+                  <div
+                    key={boardName}
+                    className="chip board-chip"
+                    onClick={() => handleBoardChipClick(boardName)}
+                  >
+                    {boardName}
+                  </div>
+                )
+            ))}
+          </div>
+
       </div>
+
+      {isEditing && (
+        <CreateNewCardForm cardData={card} onCancel={() => setIsEditing(false)} /> // Show CreateNewCardForm when editing
+      )}
     </div>
   );
 };

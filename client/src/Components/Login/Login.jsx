@@ -78,6 +78,8 @@ export const LoginForm = () => {
           placeholder="Password"
         />
         {errors.password && <p className={styles.error}>{errors.password}</p>}
+        
+        
         <button onClick={handleSubmit}  className={styles.button}>Log in</button>
         <p className={styles.footer}>Have no account yet?</p>
         <button onClick={() => navigate("/register")}  className={styles.regbutton}>Register</button>

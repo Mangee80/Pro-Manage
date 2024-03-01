@@ -27,6 +27,13 @@ mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTop
 app.use("/", async (req, res) => {
   res.status(200).json("Server is up and Running")
 });
+app.get('/health', (req, res) => {
+  res.json({
+      serverName: 'Job List Server',
+      currentTime: new Date().toLocaleTimeString(),
+      state: 'active'
+  })
+});
 
 // Error handler middleware
 app.use((err, req, res, next) => {

@@ -9,7 +9,7 @@ export const CardDetails = () => {
   useEffect(() => {
     const fetchCardDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/card/publiccard/${id}`);
+        const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/card/publiccard/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch card details');
         }

@@ -40,7 +40,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
     // Update backend here
     try {
-      const response = await fetch(`http://localhost:5000/api/card/updateChecklistItem/${card._id}`, {
+      const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/card/updateChecklistItem/${card._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleBoardChipClick = async (newTag) => {
         try {
-          const response = await fetch(`http://localhost:5000/api/card/updatetag/${card._id}`, {
+          const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/card/updatetag/${card._id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

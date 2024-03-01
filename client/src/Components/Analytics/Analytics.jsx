@@ -88,7 +88,7 @@ const AnalyticsPage = () => {
       // Retrieve userID from localStorage or wherever it's stored
       const userID = localStorage.getItem('userID');
       console.log(userID)
-      const response = await fetch(`http://localhost:5000/api/card/analytics?userID=${userID}`);
+      const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/card/analytics?userID=${userID}`);
       if (!response.ok) {
         throw new Error('Failed to fetch analytics data');
       }

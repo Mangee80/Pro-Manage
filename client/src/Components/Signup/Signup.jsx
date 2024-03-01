@@ -44,7 +44,6 @@ export const RegisterForm = () => {
       console.log(responseData);
       window.localStorage.setItem("user",responseData.user)
       window.localStorage.setItem("name",responseData.name)
-      window.localStorage.setItem("token",responseData.token)
       navigate("/");
   
     } catch (error) {

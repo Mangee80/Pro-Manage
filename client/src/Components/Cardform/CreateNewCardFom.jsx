@@ -103,11 +103,9 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
 
       const formattedDueDate = formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : null;
 
-      const token = localStorage.getItem('token');
       const userID = localStorage.getItem('userID');
       const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `${token}`
+        'Content-Type': 'application/json'
       };
 
       const response = await fetch('http://localhost:5000/api/card/createcards', {

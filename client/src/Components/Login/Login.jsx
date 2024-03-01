@@ -39,7 +39,6 @@ export const LoginForm = () => {
         const responseData = await response.json();
 
         window.localStorage.setItem("user", responseData.user);
-        window.localStorage.setItem("token", responseData.token);
         window.localStorage.setItem("userID", responseData.userId);
         navigate("/Home");
 

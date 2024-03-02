@@ -12,7 +12,7 @@ const UpdatePassword = () => {
   
     try {
       
-      const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/auth/updatePassword`, {
+      const response = await fetch(`https://pro-manage-one.vercel.app/api/auth/updatePassword`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

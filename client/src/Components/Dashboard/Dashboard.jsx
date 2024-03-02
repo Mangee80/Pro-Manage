@@ -22,7 +22,7 @@ function Dashboard() {
       }
   
       // Fetch user-specific cards with token included in the headers
-      const response = await fetch(`https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/card/getcards?userID=${userID}`, {
+      const response = await fetch(`https://pro-manage-one.vercel.app/api/card/getcards?userID=${userID}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

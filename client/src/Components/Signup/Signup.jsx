@@ -28,7 +28,7 @@ export const RegisterForm = () => {
     }
 
     try {
-      const response = await fetch("https://5931-2409-408c-8516-f0ca-e423-274-1fbe-bf30.ngrok-free.app/api/auth/register", {
+      const response = await fetch("https://pro-manage-one.vercel.app/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

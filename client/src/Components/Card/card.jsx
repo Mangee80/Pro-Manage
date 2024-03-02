@@ -88,7 +88,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleDelete = () => {
     // request to delete the card from the database
-    fetch(`http://localhost:5000/api/card/deleteCard/${card._id}`, {
+    fetch(`https://pro-manage-one.vercel.app/api/card/deleteCard/${card._id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'

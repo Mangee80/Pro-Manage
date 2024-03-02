@@ -88,7 +88,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleDelete = () => {
     // request to delete the card from the database
-    fetch(`https://pro-manage-one.vercel.app/api/card/deleteCard/${card.id}`, {
+    fetch(`http://localhost:5000/api/card/deleteCard/${card._id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
@@ -119,9 +119,9 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
     return (
     <div className="card">
       {/* Render priority */}
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ display: 'flex', gap: '7px' }}>
         <div className="priority" style={{ backgroundColor: card.priorityColor }}></div>
-        <p>{card.priorityText}</p>
+        <p style={{ fontSize: '14.7px'}}>{card.priorityText}</p>
       </div>
 
       {/* Dropdown menu */}

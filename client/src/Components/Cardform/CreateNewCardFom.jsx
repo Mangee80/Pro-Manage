@@ -157,8 +157,8 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder='Enter Text Title' required />
       </div>
 
-      <div style={{display:'flex', flexDirection:''}}>
-        <label style={{marginTop: '7px', marginRight: '10px'}}>Priority:</label>
+      <div style={{display:'flex'}}>
+        <label style={{marginTop: '5px', marginRight: '8px'}}>Priority:</label>
         <div>
           {priorities.map((priority, index) => (
             <div
@@ -173,7 +173,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         </div>
       </div>
 
-      <div style={{display:'flex', flexDirection: 'column', marginTop: '18px'}}>
+      <div style={{display:'flex', flexDirection: 'column', marginTop: '18px', maxHeight: '170px', overflowY:'auto', overflowX: 'hidden'}}>
         <label style={{ marginBottom: '10px'}}>Checklist:</label>
         <div>
           {formData.checklists.map((item, index) => (
@@ -192,8 +192,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         <div className='addChecklist' onClick={handleAddChecklistItem}><span style={{fontSize: '23px'}}>+</span> Add New</div>
       </div>
 
-      <div style={{position: 'relative'}}>
-        <label>Due Date:</label>
+      <div style={{ position: 'relative' }}>
         <div className="custom-input" onClick={() => setShowCalendar(!showCalendar)}>
           {formData.dueDate ? formData.dueDate.toDateString() : 'Select Due Date'}
         </div>
@@ -208,10 +207,11 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         )}
       </div>
 
+
       {error && <div className="error">{error}</div>}
 
-      <button type="button" onClick={onCancel}>Cancel</button>
-      <button type="submit">Create Card</button>
+      <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
+      <button className="createbtn" type="submit">Create Card</button>
     </form>
   );
 };

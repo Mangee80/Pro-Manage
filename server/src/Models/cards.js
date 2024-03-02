@@ -28,8 +28,7 @@ const cardSchema = new Schema({
   },
   checklists: [checklistSchema],
   dueDate: {
-    type: String,
-    required: true
+    type: String
   },
   tag: {
     type: String,

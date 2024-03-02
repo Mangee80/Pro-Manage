@@ -1,8 +1,40 @@
 .card-details {
+  position: fixed; /* or absolute */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  height: auto;
+  width: auto;
+}
+.Headings {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Adjust height as needed */
+  margin-top: 4vh;
+  margin-left: 3vh;
+}
+
+.checklistins {
+  position: relative;
+  margin-top: 17px;
+}
+.checklistins span {
+  width: 98.8%;
+  padding: 5px;
+  padding-left: 40px;
+  padding-right: 50px;
+  margin-right: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+
+.checklistins li {
+  list-style: none;
+  margin-bottom: 10px;
+  padding: 8.7px;
+  border: 2px solid rgba(226, 226, 226, 1);
+  border-radius: 13.1px;
 }
 
 .card-details > div {

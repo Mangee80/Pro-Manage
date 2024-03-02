@@ -17,4 +17,21 @@
     gap: 20px;
 }
 
+.headerboard {
+    margin-top: 30px;
+    margin-left: 5px;
+    font-size: 35px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+}
+.currentDate {
+    position: absolute;
+    right: 30px;
+    top: 30px;
+
+    color: rgba(112, 112, 112, 1);
+    font-size: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
   

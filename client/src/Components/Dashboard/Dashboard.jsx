@@ -42,13 +42,18 @@ function Dashboard() {
   const userName = localStorage.getItem('user');
   
   
-
+  
+  
+  const currentDate = new Date();
+  const formattedDate = currentDate.toDateString();
   
   return (
     
     <div style={{display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       <div className="dashboard-header">
-          <h1>Welcome! {userName}</h1>
+          <p style={{ fontSize: '17px', fontFamily: 'Poppins, sans-serif', fontWeight: 'bold'}}>Welcome! {userName}</p>
+          <p className='headerboard'>Board</p>
+          <div className='currentDate'>{formattedDate}</div>
       </div>
       <div className="dashboard-container">
         <div className="dashboard-content">

@@ -75,7 +75,7 @@ const AnalyticsTable = ({ analyticsData }) => {
 
 
 
-const AnalyticsPage = () => {
+const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
 
   useEffect(() => {
@@ -103,10 +103,10 @@ const AnalyticsPage = () => {
 
   return (
     <div>
-      <h2>Analytics</h2>
+      <p style={{ fontSize: '17px', fontFamily: 'Poppins, sans-serif', fontWeight: 'bold', margin: '5vh'}}>Analytics</p>
       {analyticsData && <AnalyticsTable analyticsData={analyticsData} />}
     </div>
   );
 };
 
-export default AnalyticsPage;
+export default Analytics;

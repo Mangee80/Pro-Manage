@@ -3,6 +3,7 @@
   justify-content: space-between;
   background-color: #f0f0f0; /* Add background color */
   padding: 20px; /* Add padding for spacing */
+  margin-left: 20px;
 }
 
 .analytics-left,
@@ -23,12 +24,14 @@
   margin-right: 10px;
 }
 
+
+
 .analytics-info {
   display: flex;
-  flex-direction: column;
+  gap:30px;
 }
 
 .analytics-field,
 .analytics-data {
-  margin: 4px 0;
+  margin: 10px;
 }

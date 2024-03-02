@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange }) {
   const [isChecked, setIsChecked] = useState(item.completed);
+  
 
   const handleChange = () => {
     setIsChecked(!isChecked);
@@ -23,6 +24,9 @@ function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChe
   );
 }
 
+
+
+
 export const CreateNewCardForm = ({ cardData, onCancel }) => {
   const [formData, setFormData] = useState({
     title: cardData.title || '',
@@ -32,7 +36,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     dueDate: cardData.dueDate ? new Date(cardData.dueDate) : null,
     tag: cardData.tag || 'Todo',
   });
-  
+  const [showCalendar, setShowCalendar] = useState(false);
   
   const [error, setError] = useState('');
 
@@ -57,6 +61,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       ...formData,
       dueDate: date,
     });
+    setShowCalendar(false); // Hide the calendar after selecting a date
   };
 
   const handleAddChecklistItem = () => {
@@ -187,8 +192,21 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         <div className='addChecklist' onClick={handleAddChecklistItem}><span style={{fontSize: '23px'}}>+</span> Add New</div>
       </div>
 
-      <label>Due Date:</label>
-      <DatePicker selected={formData.dueDate} onChange={handleDueDateChange} />
+      <div style={{position: 'relative'}}>
+        <label>Due Date:</label>
+        <div className="custom-input" onClick={() => setShowCalendar(!showCalendar)}>
+          {formData.dueDate ? formData.dueDate.toDateString() : 'Select Due Date'}
+        </div>
+        {showCalendar && (
+          <div className="calendar-container">
+            <DatePicker
+              selected={formData.dueDate}
+              onChange={handleDueDateChange}
+              inline
+            />
+          </div>
+        )}
+      </div>
 
       {error && <div className="error">{error}</div>}
 

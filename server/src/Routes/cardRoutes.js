@@ -136,7 +136,22 @@ router.put('/updateChecklistItem/:cardId', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
+// DELETE route to delete a card
+router.delete('/deleteCard/:id', async (req, res) => {
+  try {
+    const cardId = req.params.id;
+    // Find the card by its ID and delete it
+    const deletedCard = await Card.findByIdAndDelete(cardId);
+    if (!deletedCard) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    // Respond with a success message
+    res.json({ message: 'Card deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting card:', error);
+    res.status(500).json({ error: 'Error deleting card' });
+  }
+});
 
 
 

@@ -1,6 +1,6 @@
 import {React, useState, useEffect} from 'react';
 import './card.css';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
 
@@ -85,6 +85,28 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
           console.error('Error updating card tag:', error);
         }
   };
+
+  const handleDelete = () => {
+    // request to delete the card from the database
+    fetch(`https://pro-manage-one.vercel.app/api/card/deleteCard/${card.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Refresh the page after successful deletion
+          window.location.reload();
+        } else {
+          throw new Error('Failed to delete card');
+        }
+      })
+      .catch((error) => {
+        console.error('Error deleting card:', error);
+      });
+  };
+  
     
     // Array of board names
     
@@ -113,7 +135,9 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
             <div className="dropdown-option" onClick={handleEdit}>
               Edit
             </div>
-            {/* Other dropdown options: Delete, etc. */}
+            <div className="dropdown-option" onClick={handleDelete}>
+              Delete
+            </div>
           </div>
         )}
       </div>      

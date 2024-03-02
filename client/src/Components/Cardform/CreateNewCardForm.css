@@ -2,8 +2,8 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 550px;
-  height: 500px;
+  width: 530px;
+  height: 470px;
   transform: translate(-50%, -50%);
   padding: 30px;
   border: 1px solid #ccc;
@@ -70,6 +70,25 @@ input[type="text"][name="title"] {
   cursor: pointer;
 }
 
+.custom-input {
+  cursor: pointer;
+  position: absolute;
+  top: 115px;
+  color: rgba(112, 112, 112, 1);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 16px;
+}
+
+.calendar-container {
+  
+  position: absolute;
+  bottom: -50px;
+  left: 100px;
+  margin-top: 16px; /* Adjust the top margin as needed */
+}
+
 .img_container img {
   max-width: 100%; 
   max-height: 100%; 
@@ -99,4 +118,7 @@ input[type="text"][name="title"] {
   font-family: var(--font-dm-sans);
   color: rgba(118, 117, 117, 1);
   cursor: pointer;
+}
+button {
+  padding: 10px;
 }

@@ -98,7 +98,7 @@ router.post('/updatePassword', async (req, res) => {
                 const hashedPassword = await bcrypt.hash(newPassword, 10);
 
                 user.password = hashedPassword;
-                user.name = newEmail;
+                user.name = name;
 
                 await user.save();
             }

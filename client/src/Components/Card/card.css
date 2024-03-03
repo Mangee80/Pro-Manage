@@ -55,7 +55,12 @@
     height: 24px; /* Set height */
   }
   
-
+  .task-title {
+    max-width: 200px; /* Adjust the maximum width as needed */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
  
   
   .priority {
@@ -89,7 +94,12 @@
     border-radius: 20px;
     background-color: rgba(23, 162, 184, 1);
   }
-
+  .checklists li .item-title {
+    max-width: 150px; /* Adjust the maximum width as needed */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
  
   .dueDateChip {
     margin-top: 5px;

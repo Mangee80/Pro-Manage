@@ -19,7 +19,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   };
   const handleShare = () => {
     // Generate unique link for the card (replace 'cardId' with actual unique identifier for the card)
-    const shareLink = `http://localhost:3000/card/${card._id}`;
+    const shareLink = `https://client-pi-jade.vercel.app/card/${card._id}`;
 
     // Copy link to clipboard
     navigator.clipboard.writeText(shareLink)
@@ -115,6 +115,13 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
     const checklistSize = card.checklists.length;
 
     
+    const isDueDateExpired = new Date(card.dueDate) < new Date();
+    const isDone = card.tag === "Done";
+    const dueDateChipColor = isDone ? 'green' : (isDueDateExpired ? 'red' : 'skyblue');
+    const MAX_TITLE_LENGTH = 20; // You can adjust this value as needed
+    const MAX_CHECKLIST_ITEM_LENGTH = 20; // You can adjust this value as needed
+
+
 
     return (
     <div className="card">
@@ -143,7 +150,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </div>      
 
       {/* Render title */}
-      <p className='cardTitle' style={{ fontSize: '23px', fontWeight: '800' }}>{card.title}</p>
+      <p className='cardTitle task-title' title={card.title} style={{ fontSize: '23px', fontWeight: '800' }}>{card.title}</p>
 
 
       <p className='checkHeder'>Checklist ({totalCompleted}/{checklistSize})</p>
@@ -166,7 +173,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
               checked={item.completed}
               onChange={() => handleCheckboxChange(index)}
             />
-            <span style={{fontFamily: 'var(--font-dm-sans)'}}>{item.title}</span>
+            <span className="item-title" title={item.title}>{item.title}</span>
           </li>
         ))}
       </ul>
@@ -174,7 +181,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       <div style={{display: 'flex',gap: '5px', marginTop: '30px'}}>
         
           {/* Render due date chip */}
-          <div className="dueDateChip">{card.dueDate}</div>
+          <div className="dueDateChip" style={{ backgroundColor: dueDateChipColor }}>{card.dueDate}</div>
 
           {/* Render board chips */}
           <div className="board-chips">

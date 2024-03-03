@@ -101,18 +101,18 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.title || !formData.priorityColor || !formData.priorityText || !formData.checklists.length) {
+      if (!formData.title || !formData.priorityColor || !formData.priorityText) {
         setError('Please fill in all required fields');
         return;
       }
-
+  
       const formattedDueDate = formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : null;
-
+  
       const userID = localStorage.getItem('userID');
       const headers = {
         'Content-Type': 'application/json'
       };
-
+  
       const response = await fetch('https://pro-manage-one.vercel.app/api/card/createcards', {
         method: 'POST',
         headers: headers,
@@ -122,11 +122,11 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
           createdBy: userID
         })
       });
-
+  
       if (!response.ok) {
         throw new Error('Error creating new card');
       }
-
+  
       const responseData = await response.json();
       console.log('New card created:', responseData);
       setFormData({
@@ -143,6 +143,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       setError('Error creating new card. Please try again.');
     }
   };
+  
 
   const priorities = [
     { color: 'green', text: 'High Priority' },

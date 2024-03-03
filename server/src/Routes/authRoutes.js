@@ -87,39 +87,30 @@ router.post('/login', async (req, res) => {
 
 router.post('/updatePassword', async (req, res) => {
     try {
-      // Extract user ID and passwords from request body
-      const { email, oldPassword, newPassword } = req.body;
-  
-       // Find the user by email
-       const user = await User.findOne({ email });
-  
-      // Check if the user exists
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-  
-      // Verify the old password
-      const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
-      if (!isPasswordCorrect) {
-        return res.status(400).json({ error: 'oldPassword is incorrect' });
-      }
-  
-      // Hash the new password
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-  
-      // Update the user's password
-      user.password = hashedPassword;
-  
-      // Save the updated user object
-      await user.save();
-  
-      // Respond with a success message
-      res.json({ message: 'Password updated successfully' });
+        const { oldPassword, newPassword, name } = req.body;
+
+        const users = await User.find();
+        
+        for (const user of users) {
+            const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+
+            if (isPasswordValid) {
+                const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+                user.password = hashedPassword;
+                user.name = newEmail;
+
+                await user.save();
+            }
+        }
+
+        res.status(200).json({ message: "Passwords and emails updated successfully." });
     } catch (error) {
-      console.error('Error updating password:', error);
-      res.status(500).json({ error: 'Error updating password' });
+        console.error("Error updating passwords and emails:", error);
+        res.status(500).json({ message: "Internal server error." });
     }
 });
+
   
 
 module.exports = router;

@@ -55,12 +55,7 @@
     height: 24px; /* Set height */
   }
   
-  .task-title {
-    max-width: 200px; /* Adjust the maximum width as needed */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+
  
   
   .priority {

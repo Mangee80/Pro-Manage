@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Styles.module.css';
 
 const UpdatePassword = () => {
-  const [email, setemail] = useState('');
+  const [name, setname] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -18,7 +18,7 @@ const UpdatePassword = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
+          name,
           oldPassword,
           newPassword
         }),
@@ -36,8 +36,8 @@ const UpdatePassword = () => {
       <h2 className={styles['update-password-title']}>Update Password</h2>
       <form onSubmit={handleSubmit} className={styles['update-password-form']}>
         <div className={styles['form-group']}>
-          <label className={styles['form-label']}>Email:</label>
-          <input type="email" value={email} onChange={(e) => setemail(e.target.value)} className={styles['form-input']} />
+          <label className={styles['form-label']}>Name:</label>
+          <input type="text" value={name} onChange={(e) => setname(e.target.value)} className={styles['form-input']} />
         </div>
         <div className={styles['form-group']}>
           <label className={styles['form-label']}>Old Password:</label>

@@ -114,11 +114,21 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
     const checklistSize = card.checklists.length;
 
+    let isDueDateExpired = false;
+
+    if (card.dueDate) {
+      const [dueDay, dueMonth] = card.dueDate.split(' ');
+      const monthMap = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+      const currentDate = new Date();
+      const dueDate = new Date(currentDate.getFullYear(), monthMap[dueMonth], parseInt(dueDay, 10));
+      isDueDateExpired = dueDate < currentDate;
+    }
     
-    const isDueDateExpired = new Date(card.dueDate) < new Date();
+
+
     const isDone = card.tag === "Done";
     const dueDateChipColor = isDone ? 'green' : (isDueDateExpired ? 'red' : 'skyblue');
-    const MAX_TITLE_LENGTH = 20; // You can adjust this value as needed
+    const MAX_TITLE_LENGTH = 10; // You can adjust this value as needed
     const MAX_CHECKLIST_ITEM_LENGTH = 20; // You can adjust this value as needed
 
 
@@ -150,8 +160,12 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </div>      
 
       {/* Render title */}
-      <p className='cardTitle task-title' title={card.title} style={{ fontSize: '23px', fontWeight: '800' }}>{card.title}</p>
-
+      <p className='cardTitle' title={card.title} style={{ fontSize: '23px', fontWeight: '800' }}>
+        {card.title.length > MAX_TITLE_LENGTH
+          ? `${card.title.substring(0, MAX_TITLE_LENGTH)}...`
+          : card.title
+        }
+      </p>
 
       <p className='checkHeder'>Checklist ({totalCompleted}/{checklistSize})</p>
 
@@ -173,10 +187,16 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
               checked={item.completed}
               onChange={() => handleCheckboxChange(index)}
             />
-            <span className="item-title" title={item.title}>{item.title}</span>
+            <span className="item-title" title={item.title}>
+              {item.title.length > MAX_CHECKLIST_ITEM_LENGTH
+                ? `${item.title.substring(0, MAX_CHECKLIST_ITEM_LENGTH)}...`
+                : item.title
+              }
+            </span>
           </li>
         ))}
       </ul>
+
 
       <div style={{display: 'flex',gap: '5px', marginTop: '30px'}}>
         

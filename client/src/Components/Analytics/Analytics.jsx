@@ -1,39 +1,25 @@
 import {React, useState, useEffect} from 'react';
 import './Analytics.css'; // Import CSS file for styling
+import { GoDotFill } from "react-icons/go";
+{/* <div className="analytics-field">Backlog Tasks:</div>
+    <div className="analytics-data">{analyticsData.backlogTasks}</div> 
+    <div className="analytics-field">To-do Tasks:</div>
+    <div className="analytics-data">{analyticsData.todoTasks}</div> 
+    <div className="analytics-field">In-Progress Tasks:</div>
+    <div className="analytics-data">{analyticsData.inProgressTasks}</div>
+    <div className="analytics-field">Completed Tasks:</div>
+    <div className="analytics-data">{analyticsData.completedTasks}</div>  
+*/}
 
 const AnalyticsTable = ({ analyticsData }) => {
   return (
     <div className="analytics-container">
-      {/* Left side pairs */}
-      <div className="analytics-left">
-        <div className="analytics-pair">
-          <div className="dot"></div>
-          <div className="analytics-info">
-            <div className="analytics-field">Backlog Tasks:</div>
-            <div className="analytics-data">{analyticsData.backlogTasks}</div>
-          </div>
-        </div>
-        <div className="analytics-pair">
-          <div className="dot"></div>
-          <div className="analytics-info">
-            <div className="analytics-field">To-do Tasks:</div>
-            <div className="analytics-data">{analyticsData.todoTasks}</div>
-          </div>
-        </div>
-        <div className="analytics-pair">
-          <div className="dot"></div>
-          <div className="analytics-info">
-            <div className="analytics-field">In-Progress Tasks:</div>
-            <div className="analytics-data">{analyticsData.inProgressTasks}</div>
-          </div>
-        </div>
-        <div className="analytics-pair">
-          <div className="dot"></div>
-          <div className="analytics-info">
-            <div className="analytics-field">Completed Tasks:</div>
-            <div className="analytics-data">{analyticsData.completedTasks}</div>
-          </div>
-        </div>
+      
+      <div>
+        <GoDotFill color='blue' size={20}/><div>Backlog Tasks:</div>
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
 
       {/* Right side pairs */}

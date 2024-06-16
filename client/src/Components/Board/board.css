@@ -42,14 +42,9 @@
 .cards {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-  
-  .cards {
-    display: flex;
     flex-wrap: wrap;
     gap: 20px;
-  }
+}
   
   .add-card-button {
     cursor: pointer;

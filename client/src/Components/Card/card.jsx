@@ -2,8 +2,10 @@ import {React, useState, useEffect} from 'react';
 import './card.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { SlArrowUp } from "react-icons/sl";
 import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
-
+import { SlArrowDown } from "react-icons/sl";
+import { HiDotsHorizontal } from "react-icons/hi";
 const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   const [checklistItems, setChecklistItems] = useState(card.checklists);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -143,7 +145,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
       {/* Dropdown menu */}
       <div className="dropdown-container" onClick={toggleDropdown}>
-        &#8942; {/* Three dots icon representing dropdown */}
+        <HiDotsHorizontal size={23}/> {/* Three dots icon representing dropdown */}
         {showDropdown && (
           <div className="dropdown-content">
             <div className="dropdown-option" onClick={handleShare}>
@@ -172,9 +174,9 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       {/* Toggle button for checklists */}
       <div className="toggle-checklists" onClick={toggleChecklist}>
         {isChecklistOpen ? (
-          <span>&#9650;</span> 
+          <span style={{ position: 'absolute',padding: '4px' }}><SlArrowUp /></span>
         ) : (
-          <span>&#9660;</span>
+          <span style={{ position: 'absolute',padding: '4px' }}><SlArrowDown /></span>
         )}
       </div>
 
@@ -198,7 +200,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </ul>
 
 
-      <div style={{display: 'flex',gap: '5px', marginTop: '30px'}}>
+      <div style={{display: 'flex',justifyContent: "space-between" , marginTop: '30px'}}>
         
           {/* Render due date chip */}
           <div className="dueDateChip" style={{ backgroundColor: dueDateChipColor }}>{card.dueDate}</div>
@@ -210,7 +212,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
                 card.tag !== boardName && (
                   <div
                     key={boardName}
-                    className="chip board-chip"
+                    className="board-chip"
                     onClick={() => handleBoardChipClick(boardName)}
                   >
                     {boardName}

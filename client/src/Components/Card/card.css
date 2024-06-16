@@ -1,7 +1,7 @@
 .card {
     border: 1px solid #ccc;
     background-color: white;
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 16px;
     transition: height 0.3s ease; /* Add transition for smooth height change */
     position: relative; /* Position relative for absolute positioning of toggle button */
@@ -9,8 +9,8 @@
   }
   .dropdown-container {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 20px;
     cursor: pointer;
   }
   
@@ -49,14 +49,14 @@
   .toggle-checklists {
     cursor: pointer;
     position: absolute; /* Position toggle button */
-    top: 93px; /* Adjust top position */
-    right: 10px; /* Adjust right position */
+    top: 90px; /* Adjust top position */
+    right: 20px; /* Adjust right position */
     width: 24px; /* Set width */
     height: 24px; /* Set height */
+    background-color: rgba(238, 236, 236, 1);
+    border-radius: 7px;
   }
   
-
- 
   
   .priority {
     width: 8px;
@@ -97,24 +97,19 @@
   }
  
   .dueDateChip {
-    margin-top: 5px;
-    background-color: skyblue;
-    padding: 2px;
-    border-radius: 5px;
-    height:auto;
-  }
-  
-  .board-chips {
-    margin-top: 5px;
+    padding: 4px 7px;
+    border-radius: 10px;
+    font-size: 15px;
   }
   
   .board-chip {
     display: inline-block;
-    background-color: lightgray;
-    padding: 3px 4px;
-    margin-right: 5px;
-    border-radius: 3px;
+    background-color: rgba(238, 236, 236, 1);
+    padding: 5px 8px;
+    margin-left: 8px;
+    border-radius: 14px;
     cursor: pointer;
+    font-size: 14px;
   }
   
   .board-chip:hover {

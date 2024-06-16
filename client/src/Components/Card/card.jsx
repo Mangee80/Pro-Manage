@@ -161,7 +161,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
         )}
       </div>      
 
-      {/* Render title */}
+       {/* Render title */}
       <p className='cardTitle' title={card.title} style={{ fontSize: '23px', fontWeight: '800' }}>
         {card.title.length > MAX_TITLE_LENGTH
           ? `${card.title.substring(0, MAX_TITLE_LENGTH)}...`

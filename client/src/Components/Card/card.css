@@ -1,11 +1,11 @@
 .card {
-    border: 1px solid #ccc;
     background-color: white;
     border-radius: 20px;
     padding: 16px;
     transition: height 0.3s ease; /* Add transition for smooth height change */
     position: relative; /* Position relative for absolute positioning of toggle button */
     height: auto;
+    width: 90%;
   }
   .dropdown-container {
     position: absolute;
@@ -23,11 +23,14 @@
     z-index: 5;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 5px 0px;
   }
   
   .dropdown-option {
-    padding: 8px 16px;
+    padding: 7px 40px 5px 15px;
     cursor: pointer;
+    font-family: var(--font-dm-sans);
+
   }
   
   .dropdown-option:hover {
@@ -59,8 +62,8 @@
   
   
   .priority {
-    width: 8px;
-    height: 8px;
+    width: 10.8px;
+    height: 10.8px;
     border-radius: 50%;
     margin-top: 2px;
   }

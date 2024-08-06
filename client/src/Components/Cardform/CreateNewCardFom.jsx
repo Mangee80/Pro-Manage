@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import './CreateNewCardForm.css';
-import del from '../../assets/icons/delete.png'
+import del from '../../assets/icons/delete.png';
 import 'react-datepicker/dist/react-datepicker.css';
 
 function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange }) {
   const [isChecked, setIsChecked] = useState(item.completed);
-  
 
   const handleChange = () => {
     setIsChecked(!isChecked);
@@ -24,9 +23,6 @@ function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChe
   );
 }
 
-
-
-
 export const CreateNewCardForm = ({ cardData, onCancel }) => {
   const [formData, setFormData] = useState({
     title: cardData.title || '',
@@ -37,8 +33,21 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     tag: cardData.tag || 'Todo',
   });
   const [showCalendar, setShowCalendar] = useState(false);
-  
   const [error, setError] = useState('');
+
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        onCancel();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onCancel]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -105,28 +114,41 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         setError('Please fill in all required fields');
         return;
       }
-  
+
       const formattedDueDate = formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : null;
-  
+
       const userID = localStorage.getItem('userID');
       const headers = {
         'Content-Type': 'application/json'
       };
-  
-      const response = await fetch('https://pro-manage-one.vercel.app/api/card/createcards', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-          ...formData,
-          dueDate: formattedDueDate,
-          createdBy: userID
-        })
-      });
-  
+
+      let response;
+      if (cardData._id) {
+        response = await fetch(`http://localhost:5000/api/card/editcards/${cardData._id}`, {
+          method: 'PUT',
+          headers: headers,
+          body: JSON.stringify({
+            ...formData,
+            _id: cardData._id,  // Make sure to include the _id field for update
+            dueDate: formattedDueDate
+          })
+        });
+      } else {
+        response = await fetch('https://pro-manage-one.vercel.app/api/card/createcards', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            ...formData,
+            dueDate: formattedDueDate,
+            createdBy: userID
+          })
+        });
+      }
+
       if (!response.ok) {
         throw new Error('Error creating new card');
       }
-  
+
       const responseData = await response.json();
       console.log('New card created:', responseData);
       setFormData({
@@ -138,12 +160,13 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         tag: 'Todo',
       });
       setError('');
+      onCancel(); // Close the form
+      window.location.reload(); // Reload the page
     } catch (error) {
       console.error('Error creating new card:', error);
       setError('Error creating new card. Please try again.');
     }
   };
-  
 
   const priorities = [
     { color: 'green', text: 'High Priority' },
@@ -152,7 +175,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="form_Container">
+    <form onSubmit={handleSubmit} className="form_Container" ref={formRef}>
       <div style={{display:'flex', flexDirection:'column'}}>
         <label>Title:</label>
         <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder='Enter Text Title' required />
@@ -208,11 +231,10 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         )}
       </div>
 
-
       {error && <div className="error">{error}</div>}
 
       <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
-      <button className="createbtn" type="submit">Create Card</button>
+      <button className="createbtn" type="submit">{cardData._id ? 'Edit Card' : 'Create Card'}</button>
     </form>
   );
 };

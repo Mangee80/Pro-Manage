@@ -32,24 +32,27 @@ const UpdatePassword = () => {
   
 
   return (
-    <div className={styles['update-password-container']}>
-      <h2 className={styles['update-password-title']}>Update Password</h2>
-      <form onSubmit={handleSubmit} className={styles['update-password-form']}>
-        <div className={styles['form-group']}>
-          <label className={styles['form-label']}>Name:</label>
-          <input type="text" value={name} onChange={(e) => setname(e.target.value)} className={styles['form-input']} />
-        </div>
-        <div className={styles['form-group']}>
-          <label className={styles['form-label']}>Old Password:</label>
-          <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className={styles['form-input']} />
-        </div>
-        <div className={styles['form-group']}>
-          <label className={styles['form-label']}>New Password:</label>
-          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={styles['form-input']} />
-        </div>
-        <button type="submit" className={styles.btn}>Update Password</button>
-      </form>
-      {message && <p className={styles.message}>{message}</p>}
+    <div>
+      <p className={styles.Settings}>Setting</p>
+      <div className={styles['update-password-container']}>
+        <h2 className={styles['update-password-title']}>Update Password</h2>
+        <form onSubmit={handleSubmit} className={styles['update-password-form']}>
+          <div className={styles['form-group']}>
+            <label className={styles['form-label']}>Name:</label>
+            <input type="text" value={name} onChange={(e) => setname(e.target.value)} className={styles['form-input']} />
+          </div>
+          <div className={styles['form-group']}>
+            <label className={styles['form-label']}>Old Password:</label>
+            <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className={styles['form-input']} />
+          </div>
+          <div className={styles['form-group']}>
+            <label className={styles['form-label']}>New Password:</label>
+            <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={styles['form-input']} />
+          </div>
+          <button type="submit" className={styles.btn}>Update Password</button>
+        </form>
+        {message && <p className={styles.message}>{message}</p>}
+      </div>
     </div>
   );
 };

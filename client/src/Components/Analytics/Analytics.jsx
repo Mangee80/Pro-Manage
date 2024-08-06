@@ -14,15 +14,46 @@ import { GoDotFill } from "react-icons/go";
 const AnalyticsTable = ({ analyticsData }) => {
   return (
     <div className="analytics-container">
-      
       <div>
-        <GoDotFill color='blue' size={20}/><div>Backlog Tasks:</div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
+        {/* <div style={{display: 'flex'}}>
+          <div><GoDotFill color='blue' size={20}/></div>
+          <div>Backlog Tasks:</div>
+          <div>{analyticsData.backlogTasks}</div>
+        </div> */}
+        <div style={{ display: 'flex', alignItems: 'center'}}>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '100px' }}>
+            <GoDotFill color='blue' size={20} />
+            <div style={{ marginLeft: '0.5rem' }}>Backlog Tasks:</div>
+          </div>
+          <div>{analyticsData.backlogTasks}</div>
+        </div>
 
-      {/* Right side pairs */}
+        <div style={{ display: 'flex', marginTop: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '100px' }}>
+            <GoDotFill color='blue' size={20} />
+            <div style={{ marginLeft: '0.5rem' }}>To-do Tasks:</div>
+          </div>
+          <div>{analyticsData.todoTasks}</div>
+        </div>
+
+        <div style={{ display: 'flex', marginTop: '1rem', alignItems: 'center'}}>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '100px' }}>
+            <GoDotFill color='blue' size={20} />
+            <div style={{ marginLeft: '0.5rem' }}>In-Progress Tasks:</div>
+          </div>
+          <div>{analyticsData.inProgressTasks}</div>
+        </div>
+
+        <div style={{ display: 'flex', marginTop: '1rem', alignItems: 'center'}}>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '100px' }}>
+            <GoDotFill color='blue' size={20} />
+            <div style={{ marginLeft: '0.5rem' }}>Completed Tasks:</div>
+          </div>
+          <div>{analyticsData.completedTasks}</div>
+        </div>
+
+      </div> 
+      {/* Right side pairs
       <div className="analytics-right">
         <div className="analytics-pair">
           <div className="dot"></div>
@@ -52,7 +83,7 @@ const AnalyticsTable = ({ analyticsData }) => {
             <div className="analytics-data">{analyticsData.dueDateTasks}</div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

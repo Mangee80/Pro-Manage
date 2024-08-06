@@ -1,6 +1,5 @@
 .board {
-    min-width: 290px;
-    width: 318px; /* Minimum width for each board */
+    width: 322px; /* Minimum width for each board */
     height: 79vh;
     overflow-y: auto;
     max-height: 100vh; /* Height for each board */

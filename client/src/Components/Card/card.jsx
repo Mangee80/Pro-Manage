@@ -1,4 +1,4 @@
-import {React, useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './card.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,12 +11,13 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [totalCompleted, setTotalCompleted] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const dropdownRef = useRef(null);
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
   
   const handleEdit = () => {
-    // Set isEditing to true when Edit is clicked
+  // Set isEditing to true when Edit is clicked
     setIsEditing(true);
   };
   const handleShare = () => {
@@ -35,7 +36,21 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       });
   };
 
-   const handleCheckboxChange = async (index) => {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setShowDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  
+  const handleCheckboxChange = async (index) => {
     const updatedChecklistItems = [...checklistItems];
     updatedChecklistItems[index].completed = !updatedChecklistItems[index].completed;
     setChecklistItems(updatedChecklistItems);
@@ -129,7 +144,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
 
     const isDone = card.tag === "Done";
-    const dueDateChipColor = isDone ? 'green' : (isDueDateExpired ? 'red' : 'skyblue');
+    const dueDateChipColor = isDone ? 'rgba(99, 192, 91, 1)' : (isDueDateExpired ? 'rgba(207, 54, 54, 1)' : 'skyblue');
     const MAX_TITLE_LENGTH = 10; // You can adjust this value as needed
     const MAX_CHECKLIST_ITEM_LENGTH = 20; // You can adjust this value as needed
 
@@ -144,24 +159,24 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </div>
 
       {/* Dropdown menu */}
-      <div className="dropdown-container" onClick={toggleDropdown}>
-        <HiDotsHorizontal size={23}/> {/* Three dots icon representing dropdown */}
+      <div className="dropdown-container" ref={dropdownRef} onClick={toggleDropdown}>
+        <HiDotsHorizontal size={23} /> {/* Three dots icon representing dropdown */}
         {showDropdown && (
           <div className="dropdown-content">
-            <div className="dropdown-option" onClick={handleShare}>
-              Share
-            </div>
             <div className="dropdown-option" onClick={handleEdit}>
               Edit
             </div>
-            <div className="dropdown-option" onClick={handleDelete}>
+            <div className="dropdown-option" onClick={handleShare}>
+              Share
+            </div>
+            <div style={{ color: 'rgba(207, 54, 54, 1)' }} className="dropdown-option" onClick={handleDelete}>
               Delete
             </div>
           </div>
         )}
       </div>      
 
-       {/* Render title */}
+      {/* Render title */}
       <p className='cardTitle' title={card.title} style={{ fontSize: '23px', fontWeight: '800' }}>
         {card.title.length > MAX_TITLE_LENGTH
           ? `${card.title.substring(0, MAX_TITLE_LENGTH)}...`

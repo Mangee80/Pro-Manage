@@ -118,6 +118,36 @@ router.put('/updatetag/:id', async (req, res) => {
 });
 
 
+router.put('/editcards/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, priorityColor, priorityText, checklists, dueDate, tag } = req.body;
+
+    // Find the card by ID and update it with the new data
+    const updatedCard = await Card.findByIdAndUpdate(
+      id,
+      {
+        title,
+        priorityColor,
+        priorityText,
+        checklists,
+        dueDate,
+        tag
+      },
+      { new: true } // This option returns the updated document
+    );
+
+    if (!updatedCard) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    res.status(200).json(updatedCard);
+  } catch (error) {
+    console.error('Error updating card:', error);
+    res.status(500).json({ error: 'Error updating card' });
+  }
+});
+
+
 router.put('/updateChecklistItem/:cardId', async (req, res) => {
   const cardId = req.params.cardId;
   const updatedChecklistItems = req.body.checklistItems;

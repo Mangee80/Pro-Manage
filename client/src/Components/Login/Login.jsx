@@ -68,7 +68,7 @@ export const LoginForm = () => {
           value={formData.email}  
           onChange={handleChange} 
           type="email" 
-          placeholder="Email"
+          placeholder="Email : jhon@123mail.com "
         />
         {errors.email && <p className={styles.error}>{errors.email}</p>}
         <input 
@@ -77,7 +77,7 @@ export const LoginForm = () => {
           value={formData.password} 
           onChange={handleChange} 
           type="password" 
-          placeholder="Password"
+          placeholder=" Password : jhon123 "
         />
         {errors.password && <p className={styles.error}>{errors.password}</p>}
         

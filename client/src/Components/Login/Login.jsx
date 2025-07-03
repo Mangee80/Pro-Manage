@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import styles from './Login.module.css';
-import { useNavigate } from "react-router"
+import { useNavigate } from "react-router";
+
+// Icons
+import { HiOutlineMail } from "react-icons/hi";
+import { FiLock } from "react-icons/fi";
 
 export const LoginForm = () => {
     const navigate = useNavigate();
@@ -8,18 +12,18 @@ export const LoginForm = () => {
     const [errors, setErrors] = useState({});
     
     const handleChange = (e) => {
-      setFormData({...formData, [e.target.name]: e.target.value});
-    }
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
     
     const handleSubmit = async (e) => {
       e.preventDefault();
-      
+  
       const validationErrors = validateForm(formData);
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors);
         return;
       }
-
+  
       try {
         const response = await fetch("https://pro-manage-one.vercel.app/api/auth/login", {
           method: "POST",
@@ -28,26 +32,22 @@ export const LoginForm = () => {
           },
           body: JSON.stringify(formData),
         });
-
-
-        
-        
+  
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
+  
         const responseData = await response.json();
-
         window.localStorage.setItem("user", responseData.user);
         window.localStorage.setItem("userID", responseData.userId);
         navigate("/Home");
-
+  
       } catch (error) {
-          alert("There was a problem with the request, please try again");
-          console.log(error);
+        alert("There was a problem with the request, please try again");
+        console.log(error);
       }
     };
-
+  
     const validateForm = (data) => {
       let errors = {};
       if (!data.email.trim()) {
@@ -62,29 +62,36 @@ export const LoginForm = () => {
     return (
       <div className={styles.container}>
         <h1 className={styles.h1}>Login</h1>
-        <input 
-          className={styles.input}  
-          name="email" 
-          value={formData.email}  
-          onChange={handleChange} 
-          type="email" 
-          placeholder="Email : jhon@123mail.com "
-        />
+
+        <div className={styles.inputWrapper}>
+          <HiOutlineMail className={styles.iconStyle} />
+          <input 
+            className={styles.input}  
+            name="email" 
+            value={formData.email}  
+            onChange={handleChange} 
+            type="email" 
+            placeholder="Email : jhon@123mail.com"
+          />
+        </div>
         {errors.email && <p className={styles.error}>{errors.email}</p>}
-        <input 
-          className={styles.input} 
-          name="password" 
-          value={formData.password} 
-          onChange={handleChange} 
-          type="password" 
-          placeholder=" Password : jhon123 "
-        />
+
+        <div className={styles.inputWrapper}>
+          <FiLock className={styles.iconStyle} />
+          <input 
+            className={styles.input} 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            type="password" 
+            placeholder="Password : jhon123"
+          />
+        </div>
         {errors.password && <p className={styles.error}>{errors.password}</p>}
-        
-        
-        <button onClick={handleSubmit}  className={styles.button}>Log in</button>
+
+        <button onClick={handleSubmit} className={styles.button}>Log in</button>
         <p className={styles.footer}>Have no account yet?</p>
-        <button onClick={() => navigate("/register")}  className={styles.regbutton}>Register</button>
+        <button onClick={() => navigate("/register")} className={styles.regbutton}>Register</button>
       </div>
-    )
+    );
 };

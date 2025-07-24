@@ -10,6 +10,7 @@ export const LoginForm = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +25,7 @@ export const LoginForm = () => {
         return;
       }
   
+      setIsLoading(true);
       try {
         const response = await fetch("https://pro-manage-one.vercel.app/api/auth/login", {
           method: "POST",
@@ -45,6 +47,8 @@ export const LoginForm = () => {
       } catch (error) {
         alert("There was a problem with the request, please try again");
         console.log(error);
+      } finally {
+        setIsLoading(false);
       }
     };
   
@@ -89,7 +93,20 @@ export const LoginForm = () => {
         </div>
         {errors.password && <p className={styles.error}>{errors.password}</p>}
 
-        <button onClick={handleSubmit} className={styles.button}>Log in</button>
+        <button 
+          onClick={handleSubmit} 
+          className={styles.button}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+              <span>Logging in...</span>
+            </div>
+          ) : (
+            "Log in"
+          )}
+        </button>
         <p className={styles.footer}>Have no account yet?</p>
         <button onClick={() => navigate("/register")} className={styles.regbutton}>Register</button>
       </div>

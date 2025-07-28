@@ -1,9 +1,137 @@
 .analytics-container {
   display: flex;
   justify-content: space-between;
-  background-color: #f0f0f0; /* Add background color */
-  padding: 20px; /* Add padding for spacing */
-  margin-left: 20px;
+  background-color: #f8fbff;
+  padding: 24px 32px;
+  margin: 32px 0 0 0;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px 0 rgba(36, 107, 253, 0.07);
+  gap: 32px;
+}
+
+.summary-cards-row {
+  display: flex;
+  gap: 32px;
+  margin: 0 0 32px 0;
+  justify-content: flex-start;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #e3f0ff 0%, #f8fbff 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(36, 107, 253, 0.08);
+  padding: 20px 32px;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.summary-card:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 6px 24px 0 rgba(36, 107, 253, 0.13);
+}
+.summary-title {
+  font-size: 15px;
+  color: #2d3a4a;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.summary-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #246bfd;
+}
+.summary-card.completed .summary-value {
+  color: #4BC0C0;
+}
+.summary-card.pending .summary-value {
+  color: #FFCE56;
+}
+.summary-card.overdue .summary-value {
+  color: #FF6384;
+}
+
+.analytics-charts-row {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(36, 107, 253, 0.18), 0 1.5px 6px 0 rgba(36, 107, 253, 0.10);
+  padding: 32px 36px 36px 36px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.chart-card:hover {
+  box-shadow: 0 16px 48px 0 rgba(36, 107, 253, 0.25), 0 2px 8px 0 rgba(36, 107, 253, 0.13);
+  transform: translateY(-4px) scale(1.03);
+}
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3a4a;
+  margin-bottom: 16px;
+}
+
+.priority-bar-card canvas {
+  filter: drop-shadow(0 4px 16px rgba(255, 99, 132, 0.10)) drop-shadow(0 2px 8px rgba(36, 107, 253, 0.10));
+  border-radius: 16px;
+}
+
+/* Donut chart canvas shadow */
+.chart-card canvas {
+  filter: drop-shadow(0 4px 16px rgba(36, 107, 253, 0.13)) drop-shadow(0 2px 8px rgba(36, 107, 253, 0.10));
+  border-radius: 50%;
+}
+
+.analytics-table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+}
+.analytics-table-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f4f8ff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 4px;
+  box-shadow: 0 1px 4px 0 rgba(36, 107, 253, 0.04);
+  transition: box-shadow 0.2s;
+}
+.analytics-table-row:hover {
+  box-shadow: 0 4px 12px 0 rgba(36, 107, 253, 0.10);
+}
+.analytics-table-value {
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: 12px;
+  color: #246bfd;
+  font-size: 18px;
+}
+
+.progress-bar-bg {
+  width: 100px;
+  height: 8px;
+  background: #e3eafc;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-left: 8px;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s cubic-bezier(.4,2,.3,1);
 }
 
 .analytics-left,
@@ -23,8 +151,6 @@
   border-radius: 50%;
   margin-right: 10px;
 }
-
-
 
 .analytics-info {
   display: flex;

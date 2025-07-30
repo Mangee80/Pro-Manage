@@ -1,18 +1,9 @@
-import {React, useState, useEffect} from 'react';
-import './Analytics.css'; // Import CSS file for styling
+import {React, useState, useEffect, useRef} from 'react';
+import './Analytics.css';
 import { GoDotFill } from "react-icons/go";
-import { Pie, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from 'chart.js';
-
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 
 const SummaryCards = ({ analyticsData }) => {
   const totalTasks =
@@ -47,105 +38,89 @@ const SummaryCards = ({ analyticsData }) => {
   );
 };
 
-const TaskStatusPie = ({ analyticsData }) => {
-  const data = {
-    labels: ['Backlog', 'To-do', 'In-Progress', 'Completed'],
-    datasets: [
-      {
-        data: [
-          analyticsData.backlogTasks || 0,
-          analyticsData.todoTasks || 0,
-          analyticsData.inProgressTasks || 0,
-          analyticsData.completedTasks || 0,
-        ],
-        backgroundColor: [
-          '#36A2EB',
-          '#FFCE56',
-          '#FF6384',
-          '#4BC0C0',
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-  const options = {
-    cutout: '65%', // Donut style
-    plugins: {
-      legend: {
-        display: true,
-        position: 'bottom',
-        labels: {
-          boxWidth: 18,
-          font: { size: 14 },
-        },
-      },
-      tooltip: { enabled: true },
-    },
-  };
+// 3D Pie Slice component
+function PieSlice({ startAngle, endAngle, color, radius = 2, height = 0.5 }) {
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0);
+  shape.absarc(0, 0, radius, startAngle, endAngle, false);
+  shape.lineTo(0, 0);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: height,
+    bevelEnabled: false,
+  });
   return (
-    <div className="chart-card" title="Distribution of tasks by status.">
-      <div className="chart-title">Task Status (Donut)</div>
-      <Pie data={data} options={options} />
-    </div>
+    <mesh geometry={geometry} position={[0, 0, -height / 2]}>
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
-};
+}
 
-const PriorityBarChart = ({ analyticsData }) => {
-  const data = {
-    labels: ['Low', 'Moderate', 'High'],
-    datasets: [
-      {
-        label: 'Priority Tasks',
-        data: [
-          analyticsData.lowPriorityTasks || 0,
-          analyticsData.moderatePriorityTasks || 0,
-          analyticsData.highPriorityTasks || 0,
-        ],
-        backgroundColor: [
-          'linear-gradient(90deg, #4BC0C0 0%, #36A2EB 100%)',
-          'linear-gradient(90deg, #FFCE56 0%, #FFD580 100%)',
-          'linear-gradient(90deg, #FF6384 0%, #FF8C94 100%)',
-        ],
-        borderRadius: 12,
-        borderSkipped: false,
-        borderWidth: 2,
-      },
-    ],
-  };
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: true },
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { font: { size: 15, weight: 'bold' }, color: '#2d3a4a' },
-      },
-      y: {
-        beginAtZero: true,
-        grid: { color: '#e3eafc' },
-        ticks: { stepSize: 1, font: { size: 14 }, color: '#246bfd' },
-      },
-    },
-    elements: {
-      bar: {
-        borderRadius: 12,
-        backgroundColor: function(context) {
-          const index = context.dataIndex;
-          if (index === 0) return 'linear-gradient(90deg, #4BC0C0 0%, #36A2EB 100%)';
-          if (index === 1) return 'linear-gradient(90deg, #FFCE56 0%, #FFD580 100%)';
-          if (index === 2) return 'linear-gradient(90deg, #FF6384 0%, #FF8C94 100%)';
-          return '#246bfd';
-        },
-      },
-    },
-  };
+// 3D Pie Chart component
+function PieChart3D({ data, colors, height = 0.5, radius = 2 }) {
+  const total = data.reduce((a, b) => a + b, 0);
+  let start = 0;
+  let slices = [];
+  for (let i = 0; i < data.length; i++) {
+    const value = data[i];
+    const angle = (value / total) * Math.PI * 2;
+    const end = start + angle;
+    slices.push(
+      <PieSlice
+        key={i}
+        startAngle={start}
+        endAngle={end}
+        color={colors[i % colors.length]}
+        radius={radius}
+        height={height}
+      />
+    );
+    start = end;
+  }
   return (
-    <div className="chart-card priority-bar-card" title="Number of tasks by priority.">
-      <div className="chart-title">Priority Wise Tasks</div>
-      <Bar data={data} options={options} />
+    <group>
+      {slices}
+    </group>
+  );
+}
+
+function RotatingPieChart3D(props) {
+  const ref = useRef();
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.rotation.y += 0.005;
+    }
+  });
+  return <group ref={ref}>{props.children}</group>;
+}
+
+const PieChart3DCard = ({ analyticsData }) => {
+  const values = [
+    analyticsData.backlogTasks || 0,
+    analyticsData.todoTasks || 0,
+    analyticsData.inProgressTasks || 0,
+    analyticsData.completedTasks || 0,
+  ];
+  const colors = ['#36A2EB', '#FFCE56', '#FF6384', '#4BC0C0'];
+  const labels = ['Backlog', 'To-do', 'In-Progress', 'Completed'];
+  return (
+    <div className="chart-card" style={{height: 350, width: 350}} title="3D Pie Chart: Task Status">
+      <div className="chart-title">Task Status (3D Pie)</div>
+      <Canvas camera={{ position: [0, 4, 6], fov: 50 }} style={{height: 260, width: 340, background: 'transparent'}}>
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[5, 10, 7]} intensity={0.7} />
+        <RotatingPieChart3D>
+          <PieChart3D data={values} colors={colors} />
+        </RotatingPieChart3D>
+        <OrbitControls enablePan={false} enableZoom={false} />
+      </Canvas>
+      <div style={{display: 'flex', justifyContent: 'center', gap: 12, marginTop: 10}}>
+        {labels.map((label, i) => (
+          <span key={label} style={{display: 'flex', alignItems: 'center', fontSize: 13}}>
+            <span style={{display: 'inline-block', width: 14, height: 14, background: colors[i], borderRadius: '50%', marginRight: 6}}></span>
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };
@@ -192,7 +167,7 @@ const AnalyticsTable = ({ analyticsData }) => {
           <span className="analytics-table-value">{analyticsData.completedTasks}</span>
           <ProgressBar value={analyticsData.completedTasks} max={total} color="#4BC0C0" />
         </div>
-      </div>
+      </div> 
       <div className="analytics-table-list">
         <div className="analytics-table-row" title="Low priority tasks.">
           <GoDotFill color='#4BC0C0' size={20} />
@@ -246,8 +221,7 @@ const Analytics = () => {
       {analyticsData && <>
         <SummaryCards analyticsData={analyticsData} />
         <div className="analytics-charts-row">
-          <TaskStatusPie analyticsData={analyticsData} />
-          <PriorityBarChart analyticsData={analyticsData} />
+          <PieChart3DCard analyticsData={analyticsData} />
         </div>
         <AnalyticsTable analyticsData={analyticsData} />
       </>}

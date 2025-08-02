@@ -1,9 +1,6 @@
-import {React, useState, useEffect, useRef} from 'react';
+import {React, useState, useEffect} from 'react';
 import './Analytics.css';
 import { GoDotFill } from "react-icons/go";
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import * as THREE from 'three';
 
 const SummaryCards = ({ analyticsData }) => {
   const totalTasks =
@@ -33,93 +30,6 @@ const SummaryCards = ({ analyticsData }) => {
       <div className="summary-card overdue" title="Tasks with a due date.">
         <div className="summary-title">Overdue</div>
         <div className="summary-value">{overdueTasks}</div>
-      </div>
-    </div>
-  );
-};
-
-// 3D Pie Slice component
-function PieSlice({ startAngle, endAngle, color, radius = 2, height = 0.5 }) {
-  const shape = new THREE.Shape();
-  shape.moveTo(0, 0);
-  shape.absarc(0, 0, radius, startAngle, endAngle, false);
-  shape.lineTo(0, 0);
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: height,
-    bevelEnabled: false,
-  });
-  return (
-    <mesh geometry={geometry} position={[0, 0, -height / 2]}>
-      <meshStandardMaterial color={color} />
-    </mesh>
-  );
-}
-
-// 3D Pie Chart component
-function PieChart3D({ data, colors, height = 0.5, radius = 2 }) {
-  const total = data.reduce((a, b) => a + b, 0);
-  let start = 0;
-  let slices = [];
-  for (let i = 0; i < data.length; i++) {
-    const value = data[i];
-    const angle = (value / total) * Math.PI * 2;
-    const end = start + angle;
-    slices.push(
-      <PieSlice
-        key={i}
-        startAngle={start}
-        endAngle={end}
-        color={colors[i % colors.length]}
-        radius={radius}
-        height={height}
-      />
-    );
-    start = end;
-  }
-  return (
-    <group>
-      {slices}
-    </group>
-  );
-}
-
-function RotatingPieChart3D(props) {
-  const ref = useRef();
-  useFrame(() => {
-    if (ref.current) {
-      ref.current.rotation.y += 0.005;
-    }
-  });
-  return <group ref={ref}>{props.children}</group>;
-}
-
-const PieChart3DCard = ({ analyticsData }) => {
-  const values = [
-    analyticsData.backlogTasks || 0,
-    analyticsData.todoTasks || 0,
-    analyticsData.inProgressTasks || 0,
-    analyticsData.completedTasks || 0,
-  ];
-  const colors = ['#36A2EB', '#FFCE56', '#FF6384', '#4BC0C0'];
-  const labels = ['Backlog', 'To-do', 'In-Progress', 'Completed'];
-  return (
-    <div className="chart-card" style={{height: 350, width: 350}} title="3D Pie Chart: Task Status">
-      <div className="chart-title">Task Status (3D Pie)</div>
-      <Canvas camera={{ position: [0, 4, 6], fov: 50 }} style={{height: 260, width: 340, background: 'transparent'}}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 10, 7]} intensity={0.7} />
-        <RotatingPieChart3D>
-          <PieChart3D data={values} colors={colors} />
-        </RotatingPieChart3D>
-        <OrbitControls enablePan={false} enableZoom={false} />
-      </Canvas>
-      <div style={{display: 'flex', justifyContent: 'center', gap: 12, marginTop: 10}}>
-        {labels.map((label, i) => (
-          <span key={label} style={{display: 'flex', alignItems: 'center', fontSize: 13}}>
-            <span style={{display: 'inline-block', width: 14, height: 14, background: colors[i], borderRadius: '50%', marginRight: 6}}></span>
-            {label}
-          </span>
-        ))}
       </div>
     </div>
   );
@@ -167,7 +77,7 @@ const AnalyticsTable = ({ analyticsData }) => {
           <span className="analytics-table-value">{analyticsData.completedTasks}</span>
           <ProgressBar value={analyticsData.completedTasks} max={total} color="#4BC0C0" />
         </div>
-      </div> 
+      </div>
       <div className="analytics-table-list">
         <div className="analytics-table-row" title="Low priority tasks.">
           <GoDotFill color='#4BC0C0' size={20} />
@@ -220,9 +130,6 @@ const Analytics = () => {
       <p style={{ fontSize: '17px', fontFamily: 'Poppins, sans-serif', fontWeight: 'bold', margin: '5vh'}}>Analytics</p>
       {analyticsData && <>
         <SummaryCards analyticsData={analyticsData} />
-        <div className="analytics-charts-row">
-          <PieChart3DCard analyticsData={analyticsData} />
-        </div>
         <AnalyticsTable analyticsData={analyticsData} />
       </>}
     </div>

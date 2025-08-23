@@ -1,104 +1,89 @@
-import {React, useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import './Analytics.css';
-import { GoDotFill } from "react-icons/go";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Area,
+  AreaChart
+} from 'recharts';
+import { 
+  GoArrowUp, 
+  GoClock, 
+  GoCheckCircle, 
+  GoAlert,
+  GoProject,
+  GoGraph
+} from "react-icons/go";
 
-const SummaryCards = ({ analyticsData }) => {
-  const totalTasks =
-    (analyticsData.backlogTasks || 0) +
-    (analyticsData.todoTasks || 0) +
-    (analyticsData.inProgressTasks || 0) +
-    (analyticsData.completedTasks || 0);
-  const pendingTasks =
-    (analyticsData.backlogTasks || 0) +
-    (analyticsData.todoTasks || 0) +
-    (analyticsData.inProgressTasks || 0);
-  const overdueTasks = analyticsData.dueDateTasks || 0;
-  return (
-    <div className="summary-cards-row">
-      <div className="summary-card total" title="Total number of tasks created.">
-        <div className="summary-title">Total Tasks</div>
-        <div className="summary-value">{totalTasks}</div>
-      </div>
-      <div className="summary-card completed" title="Number of tasks marked as completed.">
-        <div className="summary-title">Completed</div>
-        <div className="summary-value">{analyticsData.completedTasks || 0}</div>
-      </div>
-      <div className="summary-card pending" title="Tasks that are not yet completed.">
-        <div className="summary-title">Pending</div>
-        <div className="summary-value">{pendingTasks}</div>
-      </div>
-      <div className="summary-card overdue" title="Tasks with a due date.">
-        <div className="summary-title">Overdue</div>
-        <div className="summary-value">{overdueTasks}</div>
-      </div>
+const SummaryCard = ({ title, value, icon: Icon, color, subtitle, trend }) => (
+  <div className="summary-card-compact" style={{ borderLeft: `3px solid ${color}` }}>
+    <div className="summary-card-icon-compact" style={{ backgroundColor: `${color}20` }}>
+      <Icon size={18} color={color} />
     </div>
-  );
-};
-
-const ProgressBar = ({ value, max, color }) => {
-  const percent = max > 0 ? (value / max) * 100 : 0;
-  return (
-    <div className="progress-bar-bg" title={`Progress: ${value} of ${max}`}>
-      <div className="progress-bar-fill" style={{ width: `${percent}%`, background: color }}></div>
+    <div className="summary-card-content-compact">
+      <div className="summary-card-value-compact">{value}</div>
+      <div className="summary-card-title-compact">{title}</div>
+      {subtitle && <div className="summary-card-subtitle-compact">{subtitle}</div>}
     </div>
-  );
-};
-
-const AnalyticsTable = ({ analyticsData }) => {
-  const total =
-    (analyticsData.backlogTasks || 0) +
-    (analyticsData.todoTasks || 0) +
-    (analyticsData.inProgressTasks || 0) +
-    (analyticsData.completedTasks || 0);
-  return (
-    <div className="analytics-container">
-      <div className="analytics-table-list">
-        <div className="analytics-table-row" title="Backlog tasks are yet to be started.">
-          <GoDotFill color='#36A2EB' size={20} />
-          <span>Backlog Tasks</span>
-          <span className="analytics-table-value">{analyticsData.backlogTasks}</span>
-          <ProgressBar value={analyticsData.backlogTasks} max={total} color="#36A2EB" />
-        </div>
-        <div className="analytics-table-row" title="To-do tasks are planned but not started.">
-          <GoDotFill color='#FFCE56' size={20} />
-          <span>To-do Tasks</span>
-          <span className="analytics-table-value">{analyticsData.todoTasks}</span>
-          <ProgressBar value={analyticsData.todoTasks} max={total} color="#FFCE56" />
-        </div>
-        <div className="analytics-table-row" title="Tasks currently in progress.">
-          <GoDotFill color='#FF6384' size={20} />
-          <span>In-Progress Tasks</span>
-          <span className="analytics-table-value">{analyticsData.inProgressTasks}</span>
-          <ProgressBar value={analyticsData.inProgressTasks} max={total} color="#FF6384" />
-        </div>
-        <div className="analytics-table-row" title="Tasks that are completed.">
-          <GoDotFill color='#4BC0C0' size={20} />
-          <span>Completed Tasks</span>
-          <span className="analytics-table-value">{analyticsData.completedTasks}</span>
-          <ProgressBar value={analyticsData.completedTasks} max={total} color="#4BC0C0" />
-        </div>
+    {trend && (
+      <div className="trend-indicator-compact" style={{ color: trend > 0 ? '#10B981' : '#EF4444' }}>
+        {trend > 0 ? '+' : ''}{trend}%
       </div>
-      <div className="analytics-table-list">
-        <div className="analytics-table-row" title="Low priority tasks.">
-          <GoDotFill color='#4BC0C0' size={20} />
-          <span>Low Priority</span>
-          <span className="analytics-table-value">{analyticsData.lowPriorityTasks}</span>
-        </div>
-        <div className="analytics-table-row" title="Moderate priority tasks.">
-          <GoDotFill color='#FFCE56' size={20} />
-          <span>Moderate Priority</span>
-          <span className="analytics-table-value">{analyticsData.moderatePriorityTasks}</span>
-        </div>
-        <div className="analytics-table-row" title="High priority tasks.">
-          <GoDotFill color='#FF6384' size={20} />
-          <span>High Priority</span>
-          <span className="analytics-table-value">{analyticsData.highPriorityTasks}</span>
-        </div>
-        <div className="analytics-table-row" title="Tasks with a due date.">
-          <GoDotFill color='#246bfd' size={20} />
-          <span>Due Date Tasks</span>
-          <span className="analytics-table-value">{analyticsData.dueDateTasks}</span>
-        </div>
+    )}
+  </div>
+);
+
+const ChartCard = ({ title, children, className = "" }) => (
+  <div className={`chart-card-compact ${className}`}>
+    <div className="chart-card-header-compact">
+      <h3 className="chart-card-title-compact">{title}</h3>
+    </div>
+    <div className="chart-card-content-compact">
+      {children}
+    </div>
+  </div>
+);
+
+const ProgressRing = ({ percentage, color, size = 80, strokeWidth = 8 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="progress-ring">
+      <svg width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#E5E7EB"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <div className="progress-ring-text">
+        <span className="progress-ring-percentage">{percentage}%</span>
       </div>
     </div>
   );
@@ -106,6 +91,7 @@ const AnalyticsTable = ({ analyticsData }) => {
 
 const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -113,6 +99,7 @@ const Analytics = () => {
 
   const fetchAnalyticsData = async () => {
     try {
+      setLoading(true);
       const userID = localStorage.getItem('userID');
       const response = await fetch(`https://pro-manage-one.vercel.app/api/card/analytics?userID=${userID}`);
       if (!response.ok) {
@@ -122,16 +109,273 @@ const Analytics = () => {
       setAnalyticsData(data);
     } catch (error) {
       console.error('Error fetching analytics data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="analytics-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading analytics...</p>
+      </div>
+    );
+  }
+
+  if (!analyticsData) {
+    return (
+      <div className="analytics-error">
+        <p>Failed to load analytics data. Please try again.</p>
+      </div>
+    );
+  }
+
+  // Calculate totals and percentages
+  const totalTasks = 
+    (analyticsData.backlogTasks || 0) +
+    (analyticsData.todoTasks || 0) +
+    (analyticsData.inProgressTasks || 0) +
+    (analyticsData.completedTasks || 0);
+
+  const completedPercentage = totalTasks > 0 ? Math.round((analyticsData.completedTasks || 0) / totalTasks * 100) : 0;
+  const pendingPercentage = totalTasks > 0 ? Math.round(((analyticsData.backlogTasks || 0) + (analyticsData.todoTasks || 0) + (analyticsData.inProgressTasks || 0)) / totalTasks * 100) : 0;
+
+  // Data for charts
+  const taskStatusData = [
+    { name: 'Backlog', value: analyticsData.backlogTasks || 0, color: '#36A2EB' },
+    { name: 'To-do', value: analyticsData.todoTasks || 0, color: '#FFCE56' },
+    { name: 'In Progress', value: analyticsData.inProgressTasks || 0, color: '#FF6384' },
+    { name: 'Completed', value: analyticsData.completedTasks || 0, color: '#4BC0C0' }
+  ];
+
+  const priorityData = [
+    { name: 'Low', value: analyticsData.lowPriorityTasks || 0, color: '#4BC0C0' },
+    { name: 'Moderate', value: analyticsData.moderatePriorityTasks || 0, color: '#FFCE56' },
+    { name: 'High', value: analyticsData.highPriorityTasks || 0, color: '#FF6384' }
+  ];
+
+  const weeklyProgressData = [
+    { day: 'Mon', completed: 5, total: 8 },
+    { day: 'Tue', completed: 7, total: 10 },
+    { day: 'Wed', completed: 6, total: 9 },
+    { day: 'Thu', completed: 8, total: 12 },
+    { day: 'Fri', completed: 9, total: 11 },
+    { day: 'Sat', completed: 4, total: 6 },
+    { day: 'Sun', completed: 3, total: 5 }
+  ];
+
   return (
-    <div>
-      <p style={{ fontSize: '17px', fontFamily: 'Poppins, sans-serif', fontWeight: 'bold', margin: '5vh'}}>Analytics</p>
-      {analyticsData && <>
-        <SummaryCards analyticsData={analyticsData} />
-        <AnalyticsTable analyticsData={analyticsData} />
-      </>}
+    <div className="analytics-page-compact">
+      {/* Header - Center aligned */}
+      <div className="analytics-header-compact">
+        <div className="analytics-header-content-compact">
+          <h1 className="analytics-title-compact">
+            <GoGraph size={24} />
+            Analytics Dashboard
+          </h1>
+          <p className="analytics-subtitle-compact">Track your project progress and performance</p>
+        </div>
+        <div className="analytics-actions-compact">
+          <button className="refresh-btn-compact" onClick={fetchAnalyticsData}>
+            <GoArrowUp size={14} />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div className="analytics-content-wrapper">
+        {/* Right Side - Summary Cards (Compact Chips) */}
+        <div className="summary-cards-sidebar">
+          <SummaryCard
+            title="Total Tasks"
+            value={totalTasks}
+            icon={GoProject}
+            color="#246BFD"
+            subtitle="All created tasks"
+          />
+          <SummaryCard
+            title="Completed"
+            value={analyticsData.completedTasks || 0}
+            icon={GoCheckCircle}
+            color="#10B981"
+            subtitle={`${completedPercentage}% of total`}
+            trend={12}
+          />
+          <SummaryCard
+            title="Pending"
+            value={(analyticsData.backlogTasks || 0) + (analyticsData.todoTasks || 0) + (analyticsData.inProgressTasks || 0)}
+            icon={GoClock}
+            color="#F59E0B"
+            subtitle={`${pendingPercentage}% of total`}
+          />
+          <SummaryCard
+            title="Due Soon"
+            value={analyticsData.dueDateTasks || 0}
+            icon={GoAlert}
+            color="#EF4444"
+            subtitle="Tasks with deadlines"
+          />
+          
+          {/* Detailed Statistics Table - Below Chips */}
+          <div className="detailed-stats-compact">
+            <ChartCard title="Task Breakdown" className="stats-table-card-compact">
+              <div className="stats-table-compact">
+                <div className="stats-table-header-compact">
+                  <span>Category</span>
+                  <span>Count</span>
+                  <span>%</span>
+                  <span>Progress</span>
+                </div>
+                {taskStatusData.map((item, index) => (
+                  <div key={index} className="stats-table-row-compact">
+                    <div className="stats-category-compact">
+                      <div className="category-dot-compact" style={{ backgroundColor: item.color }}></div>
+                      <span>{item.name}</span>
+                    </div>
+                    <span className="stats-count-compact">{item.value}</span>
+                    <span className="stats-percentage-compact">
+                      {totalTasks > 0 ? Math.round((item.value / totalTasks) * 100) : 0}%
+                    </span>
+                    <div className="stats-progress-compact">
+                      <div 
+                        className="progress-bar-compact" 
+                        style={{ 
+                          width: `${totalTasks > 0 ? (item.value / totalTasks) * 100 : 0}%`,
+                          backgroundColor: item.color
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
+          </div>
+        </div>
+
+        {/* Left Side - Charts */}
+        <div className="charts-main-area">
+          {/* Task Status Distribution */}
+          <ChartCard title="Task Status Distribution" className="pie-chart-card-compact">
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={taskStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {taskStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name) => [value, name]}
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="chart-legend-compact">
+              {taskStatusData.map((item, index) => (
+                <div key={index} className="legend-item-compact">
+                  <div className="legend-color-compact" style={{ backgroundColor: item.color }}></div>
+                  <span className="legend-label-compact">{item.name}</span>
+                  <span className="legend-value-compact">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+
+          {/* Weekly Progress */}
+          <ChartCard title="Weekly Progress" className="area-chart-card-compact">
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={weeklyProgressData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="day" stroke="#6B7280" />
+                <YAxis stroke="#6B7280" />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="completed" 
+                  stackId="1" 
+                  stroke="#10B981" 
+                  fill="#10B981" 
+                  fillOpacity={0.6}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="total" 
+                  stackId="1" 
+                  stroke="#246BFD" 
+                  fill="#246BFD" 
+                  fillOpacity={0.3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          {/* Priority Distribution */}
+          <ChartCard title="Priority Distribution" className="bar-chart-card-compact">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={priorityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="name" stroke="#6B7280" />
+                <YAxis stroke="#6B7280" />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {priorityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          {/* Completion Rate */}
+          <ChartCard title="Overall Completion Rate" className="progress-card-compact">
+            <div className="progress-content-compact">
+              <ProgressRing 
+                percentage={completedPercentage} 
+                color="#10B981" 
+                size={100} 
+                strokeWidth={10}
+              />
+              <div className="progress-stats-compact">
+                <div className="progress-stat-compact">
+                  <span className="stat-label-compact">Completed</span>
+                  <span className="stat-value-compact">{analyticsData.completedTasks || 0}</span>
+                </div>
+                <div className="progress-stat-compact">
+                  <span className="stat-label-compact">Remaining</span>
+                  <span className="stat-value-compact">{totalTasks - (analyticsData.completedTasks || 0)}</span>
+                </div>
+              </div>
+            </div>
+          </ChartCard>
+        </div>
+      </div>
     </div>
   );
 };

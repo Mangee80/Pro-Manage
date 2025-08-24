@@ -38,19 +38,19 @@ const SummaryCard = ({ title, value, icon: Icon, color, subtitle, trend }) => (
         {trend > 0 ? '+' : ''}{trend}%
       </div>
     )}
-  </div>
+      </div>
 );
 
 const ChartCard = ({ title, children, className = "" }) => (
   <div className={`chart-card-compact ${className}`}>
     <div className="chart-card-header-compact">
       <h3 className="chart-card-title-compact">{title}</h3>
-    </div>
+      </div>
     <div className="chart-card-content-compact">
       {children}
+      </div>
     </div>
-  </div>
-);
+  );
 
 const ProgressRing = ({ percentage, color, size = 80, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;

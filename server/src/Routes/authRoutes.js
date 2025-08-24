@@ -111,6 +111,77 @@ router.post('/updatePassword', async (req, res) => {
     }
 });
 
+// New route for updating user settings
+router.post('/updateSettings', async (req, res) => {
+    try {
+        const { userID, name, email, oldPassword, newPassword } = req.body;
+
+        // Validate userID
+        if (!userID) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        // Find user by ID
+        const user = await User.findById(userID);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let hasChanges = false;
+
+        // Update name if provided
+        if (name && name.trim() !== '') {
+            user.name = name.trim();
+            hasChanges = true;
+        }
+
+        // Update email if provided
+        if (email && email.trim() !== '') {
+            // Check if email is already taken by another user
+            const existingUser = await User.findOne({ email: email.trim(), _id: { $ne: userID } });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email is already taken by another user' });
+            }
+            user.email = email.trim();
+            hasChanges = true;
+        }
+
+        // Update password if both old and new passwords are provided
+        if (oldPassword && newPassword) {
+            // Verify old password
+            const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+            if (!isPasswordValid) {
+                return res.status(400).json({ message: 'Old password is incorrect' });
+            }
+
+            // Hash new password
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            user.password = hashedPassword;
+            hasChanges = true;
+        }
+
+        // Check if any changes were made
+        if (!hasChanges) {
+            return res.status(400).json({ message: 'No changes to update' });
+        }
+
+        // Save updated user
+        await user.save();
+
+        res.status(200).json({ 
+            message: 'Settings updated successfully',
+            user: {
+                name: user.name,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        console.error("Error updating settings:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+});
+
   
 
 module.exports = router;

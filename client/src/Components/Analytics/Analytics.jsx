@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Analytics.css';
+import { apiRequest } from '../../utils/authUtils';
 import { 
   BarChart, 
   Bar, 
@@ -100,8 +101,8 @@ const Analytics = () => {
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
-      const userID = localStorage.getItem('userID');
-      const response = await fetch(`https://pro-manage-one.vercel.app/api/card/analytics?userID=${userID}`);
+      // Use JWT authentication instead of localStorage userID
+      const response = await apiRequest('http://localhost:5000/api/card/analytics');
       if (!response.ok) {
         throw new Error('Failed to fetch analytics data');
       }

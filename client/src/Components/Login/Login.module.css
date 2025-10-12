@@ -128,3 +128,14 @@
     color: red;
     text-align: center;
 }
+
+.loginError {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 14px;
+}

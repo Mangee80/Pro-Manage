@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Login.module.css';
 import { useNavigate } from "react-router";
+import { setTokens } from '../../utils/authUtils';
 
 // Icons
 import { HiOutlineMail } from "react-icons/hi";
@@ -11,9 +12,12 @@ export const LoginForm = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [loginError, setLoginError] = useState("");
     
     const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
+      // Clear login error when user types
+      if (loginError) setLoginError("");
     };
     
     const handleSubmit = async (e) => {
@@ -26,8 +30,10 @@ export const LoginForm = () => {
       }
   
       setIsLoading(true);
+      setLoginError("");
+      
       try {
-        const response = await fetch("https://pro-manage-one.vercel.app/api/auth/login", {
+        const response = await fetch("http://localhost:5000/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -35,17 +41,30 @@ export const LoginForm = () => {
           body: JSON.stringify(formData),
         });
   
+        const responseData = await response.json();
+  
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(responseData.message || responseData.error || "Login failed");
         }
   
-        const responseData = await response.json();
-        window.localStorage.setItem("user", responseData.user);
-        window.localStorage.setItem("userID", responseData.userId);
-        navigate("/Home");
+        if (responseData.status === 'SUCCESS') {
+          // Store JWT tokens and user info
+          setTokens(
+            responseData.accessToken, 
+            responseData.refreshToken, 
+            responseData.user
+          );
+          
+          // Also store userID for backward compatibility
+          window.localStorage.setItem("userID", responseData.user.id);
+          
+          navigate("/Home");
+        } else {
+          setLoginError(responseData.message || "Login failed");
+        }
   
       } catch (error) {
-        alert("There was a problem with the request, please try again");
+        setLoginError(error.message || "There was a problem with the request, please try again");
         console.log(error);
       } finally {
         setIsLoading(false);
@@ -66,6 +85,12 @@ export const LoginForm = () => {
     return (
       <div className={styles.container}>
         <h1 className={styles.h1}>Login</h1>
+
+        {loginError && (
+          <div className={styles.loginError}>
+            {loginError}
+          </div>
+        )}
 
         <div className={styles.inputWrapper}>
           <HiOutlineMail className={styles.iconStyle} />

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../Models/users');
+const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwtUtils');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 require('dotenv').config();
 
@@ -34,16 +36,29 @@ router.post('/register', async (req, res) => {
         const user = new User({ name, email, password: hashedPassword });
         await user.save();
         
+        // Generate tokens
+        const accessToken = generateAccessToken(user._id, user.email);
+        const refreshToken = generateRefreshToken(user._id, user.email);
+        
+        // Save refresh token to user
+        user.refreshToken = refreshToken;
+        await user.save();
+        
         res.json({
             status: 'SUCCESS',
-            user: email,
-            name
+            message: 'User registered successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            },
+            accessToken,
+            refreshToken
         });
     } catch (error) {
         errorHandler(res, error);
     }  
 });
-
 
 // Login route
 router.post('/login', async (req, res) => {
@@ -73,13 +88,93 @@ router.post('/login', async (req, res) => {
             });
         }
 
+        // Generate tokens
+        const accessToken = generateAccessToken(user._id, user.email);
+        const refreshToken = generateRefreshToken(user._id, user.email);
+        
+        // Save refresh token to user
+        user.refreshToken = refreshToken;
+        await user.save();
         
         res.json({
             status: 'SUCCESS',
             message: "You've logged in successfully!",
-            user: user.name,
-            userId: user._id
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            },
+            accessToken,
+            refreshToken
         });
+    } catch (error) {
+        errorHandler(res, error);
+    }
+});
+
+// Refresh token route
+router.post('/refresh', async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        
+        if (!refreshToken) {
+            return res.status(400).json({ error: 'Refresh token is required' });
+        }
+
+        // Verify refresh token
+        const decoded = verifyRefreshToken(refreshToken);
+        if (!decoded) {
+            return res.status(403).json({ error: 'Invalid refresh token' });
+        }
+
+        // Find user
+        const user = await User.findById(decoded.userId);
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({ error: 'Invalid refresh token' });
+        }
+
+        // Generate new tokens
+        const newAccessToken = generateAccessToken(user._id, user.email);
+        const newRefreshToken = generateRefreshToken(user._id, user.email);
+        
+        // Update refresh token
+        user.refreshToken = newRefreshToken;
+        await user.save();
+        
+        res.json({
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        });
+    } catch (error) {
+        errorHandler(res, error);
+    }
+});
+
+// Logout route
+router.post('/logout', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        
+        // Clear refresh token
+        await User.findByIdAndUpdate(userId, { refreshToken: null });
+        
+        res.json({ message: 'Logged out successfully' });
+    } catch (error) {
+        errorHandler(res, error);
+    }
+});
+
+// Get current user profile
+router.get('/profile', authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const user = await User.findById(userId).select('-password -refreshToken');
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        res.json({ user });
     } catch (error) {
         errorHandler(res, error);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Sidebar.css';
 import { useNavigate } from "react-router"
+import { logout } from '../../utils/authUtils';
 import codesandbox from '../../assets/icons/codesandbox.png';
 import layout from '../../assets/icons/layout.png';
 import database from '../../assets/icons/database.png';
@@ -15,11 +16,17 @@ const Sidebar = ({ setSelectedComponent }) => {
     setSelectedComponent(option);
     setSelectedOption(option);
     if (option === 'Logout') {
-      // Clear user-related data from local storage
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      localStorage.removeItem('userID');
-      // Redirect to login page
+      handleLogout();
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // logout function will handle redirect
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force redirect even if logout fails
       navigate("/");
     }
   };

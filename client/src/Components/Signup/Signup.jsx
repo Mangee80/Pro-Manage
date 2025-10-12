@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Signup.module.css';
 import { useNavigate } from "react-router";
+import { setTokens } from '../../utils/authUtils';
 
 // Icons
 import { BiUser } from "react-icons/bi";
@@ -16,9 +17,13 @@ export const RegisterForm = () => {
     confirmPassword: ""
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState("");
   
   const handleChange = (e) => {
     setFormData({...formData, [e.target.name]: e.target.value});
+    // Clear register error when user types
+    if (registerError) setRegisterError("");
   }
 
   const handleSubmit = async (e) => {
@@ -30,24 +35,49 @@ export const RegisterForm = () => {
       return;
     }
 
+    setIsLoading(true);
+    setRegisterError("");
+
     try {
-      const response = await fetch("https://pro-manage-one.vercel.app/api/auth/register", {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        }),
       });
 
-      if (!response.ok) throw new Error("Network response was not ok");
-
       const responseData = await response.json();
-      window.localStorage.setItem("user", responseData.user);
-      window.localStorage.setItem("name", responseData.name);
-      navigate("/");
+
+      if (!response.ok) {
+        throw new Error(responseData.error || responseData.message || "Registration failed");
+      }
+
+      if (responseData.status === 'SUCCESS') {
+        // Store JWT tokens and user info
+        setTokens(
+          responseData.accessToken, 
+          responseData.refreshToken, 
+          responseData.user
+        );
+        
+        // Also store userID for backward compatibility
+        window.localStorage.setItem("userID", responseData.user.id);
+        
+        navigate("/Home");
+      } else {
+        setRegisterError(responseData.message || "Registration failed");
+      }
 
     } catch (error) {
-      alert("There was a problem with the request, please try again");
+      setRegisterError(error.message || "There was a problem with the request, please try again");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,6 +94,12 @@ export const RegisterForm = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.h1}>Register</h1>
+
+      {registerError && (
+        <div className={styles.registerError}>
+          {registerError}
+        </div>
+      )}
 
       <div className={styles.inputWrapper}>
         <BiUser className={styles.iconStyle} />
@@ -117,7 +153,13 @@ export const RegisterForm = () => {
       </div>
       {errors.confirmPassword && <p className={styles.error}>{errors.confirmPassword}</p>}
 
-      <button onClick={handleSubmit}  className={styles.button}>Register</button>
+      <button 
+        onClick={handleSubmit}  
+        className={styles.button}
+        disabled={isLoading}
+      >
+        {isLoading ? "Creating Account..." : "Register"}
+      </button>
       <p className={styles.footer}>Have an account ?</p>
       <button onClick={() => navigate("/")}  className={styles.regbutton}>Log In</button>
     </div>

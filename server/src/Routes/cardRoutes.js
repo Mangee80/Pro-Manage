@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Card = require('../Models/cards');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 // Route to retrieve cards associated with the logged-in user
-
-router.get('/analytics', async (req, res) => {
+router.get('/analytics', authenticateToken, async (req, res) => {
   try {
-    // Get the user ID from the request query parameters
-    const userId = req.query.userID;
-    console.log(userId);
+    // Get the user ID from the authenticated token
+    const userId = req.user.userId;
+    console.log('Authenticated user ID:', userId);
 
     // Aggregate data for different fields belonging to the user
     const backlogTasks = await Card.countDocuments({ createdBy: userId, tag: 'Backlog' });
@@ -38,13 +38,10 @@ router.get('/analytics', async (req, res) => {
   }
 });
 
-
-
-
-router.get('/getcards', async (req, res) => {
+router.get('/getcards', authenticateToken, async (req, res) => {
   try {
-    // Extract userID from the request query parameters
-    const userID = req.query.userID;
+    // Extract userID from the authenticated token
+    const userID = req.user.userId;
     console.log("Backend userID: ", userID);
 
     // Retrieve cards created by the logged-in user
@@ -72,12 +69,10 @@ router.get('/getcards', async (req, res) => {
   }
 });
 
-
-
-router.post('/createcards', async (req, res) => {
+router.post('/createcards', authenticateToken, async (req, res) => {
     try {
-      const { title, priorityColor, priorityText, checklists, dueDate, tag,  createdBy } = req.body;
-      // const userId = window.localStorage.getItem('userID');
+      const { title, priorityColor, priorityText, checklists, dueDate, tag } = req.body;
+      const createdBy = req.user.userId; // Get user ID from authenticated token
   
       // Create a new card object
       const newCard = new Card({
@@ -87,7 +82,7 @@ router.post('/createcards', async (req, res) => {
         checklists,
         dueDate,
         tag,
-        createdBy // Link the card to the user who created it
+        createdBy // Link the card to the authenticated user
       });
   
       // Save the new card to the database
@@ -100,15 +95,18 @@ router.post('/createcards', async (req, res) => {
     }
 });
 
-
-
-
-router.put('/updatetag/:id', async (req, res) => {
+router.put('/updatetag/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { tag } = req.body;
+  const userId = req.user.userId;
 
   try {
-    // Find the card by ID and update its tag
+    // Find the card by ID, verify ownership, and update its tag
+    const card = await Card.findOne({ _id: id, createdBy: userId });
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found or access denied' });
+    }
+
     const updatedCard = await Card.findByIdAndUpdate(id, { tag }, { new: true });
     res.json(updatedCard);
   } catch (error) {
@@ -117,13 +115,18 @@ router.put('/updatetag/:id', async (req, res) => {
   }
 });
 
-
-router.put('/editcards/:id', async (req, res) => {
+router.put('/editcards/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, priorityColor, priorityText, checklists, dueDate, tag } = req.body;
+    const userId = req.user.userId;
 
-    // Find the card by ID and update it with the new data
+    // Find the card by ID, verify ownership, and update it
+    const card = await Card.findOne({ _id: id, createdBy: userId });
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found or access denied' });
+    }
+
     const updatedCard = await Card.findByIdAndUpdate(
       id,
       {
@@ -134,12 +137,9 @@ router.put('/editcards/:id', async (req, res) => {
         dueDate,
         tag
       },
-      { new: true } // This option returns the updated document
+      { new: true }
     );
 
-    if (!updatedCard) {
-      return res.status(404).json({ error: 'Card not found' });
-    }
     res.status(200).json(updatedCard);
   } catch (error) {
     console.error('Error updating card:', error);
@@ -147,35 +147,40 @@ router.put('/editcards/:id', async (req, res) => {
   }
 });
 
-
-router.put('/updateChecklistItem/:cardId', async (req, res) => {
+router.put('/updateChecklistItem/:cardId', authenticateToken, async (req, res) => {
   const cardId = req.params.cardId;
   const updatedChecklistItems = req.body.checklistItems;
+  const userId = req.user.userId;
 
   try {
-    // Find the card by ID and update the checklist items
+    // Find the card by ID, verify ownership, and update the checklist items
+    const card = await Card.findOne({ _id: cardId, createdBy: userId });
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found or access denied' });
+    }
+
     const updatedCard = await Card.findByIdAndUpdate(cardId, { checklists: updatedChecklistItems }, { new: true });
 
-    if (updatedCard) {
-      res.status(200).json({ message: 'Checklist items updated successfully', card: updatedCard });
-    } else {
-      res.status(404).json({ message: 'Card not found' });
-    }
+    res.status(200).json({ message: 'Checklist items updated successfully', card: updatedCard });
   } catch (error) {
     console.error('Error updating checklist items:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 // DELETE route to delete a card
-router.delete('/deleteCard/:id', async (req, res) => {
+router.delete('/deleteCard/:id', authenticateToken, async (req, res) => {
   try {
     const cardId = req.params.id;
-    // Find the card by its ID and delete it
-    const deletedCard = await Card.findByIdAndDelete(cardId);
-    if (!deletedCard) {
-      return res.status(404).json({ error: 'Card not found' });
+    const userId = req.user.userId;
+
+    // Find the card by ID, verify ownership, and delete it
+    const card = await Card.findOne({ _id: cardId, createdBy: userId });
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found or access denied' });
     }
-    // Respond with a success message
+
+    const deletedCard = await Card.findByIdAndDelete(cardId);
     res.json({ message: 'Card deleted successfully' });
   } catch (error) {
     console.error('Error deleting card:', error);
@@ -183,8 +188,7 @@ router.delete('/deleteCard/:id', async (req, res) => {
   }
 });
 
-
-
+// Public route - no authentication required
 router.get('/publiccard/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -198,6 +202,5 @@ router.get('/publiccard/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 module.exports = router;

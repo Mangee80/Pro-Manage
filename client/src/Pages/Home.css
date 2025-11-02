@@ -1,5 +1,8 @@
 /* Home.css */
 .home {
     display: flex; /* Flex layout ka use karein */
+    overflow-x: hidden;
+    width: 100vw;
+    box-sizing: border-box;
 }
   

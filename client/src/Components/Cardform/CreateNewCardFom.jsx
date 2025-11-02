@@ -175,7 +175,9 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="form_Container" ref={formRef}>
+    <>
+      <div className="modal-backdrop" onClick={onCancel}></div>
+      <form onSubmit={handleSubmit} className="form_Container" ref={formRef}>
       <div style={{display:'flex', flexDirection:'column'}}>
         <label>Title:</label>
         <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder='Enter Text Title' required />
@@ -236,5 +238,6 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
       <button className="createbtn" type="submit">{cardData._id ? 'Edit Card' : 'Create Card'}</button>
     </form>
+    </>
   );
 };

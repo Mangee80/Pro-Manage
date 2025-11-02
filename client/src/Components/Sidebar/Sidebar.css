@@ -1,57 +1,154 @@
 /* Sidebar.css */
 .sidebar {
-    width: 15vw; /* Sidebar ka fixed width */
+    width: 12vw; /* Sidebar ka fixed width - reduced from 15vw */
     height: 100vh; /* Sidebar ki height full height honi chahiye */
     background-color: rgba(255, 255, 255, 1); /* Example background color */
 
     border-right: 1px solid rgb(215, 224, 235);
-    padding-left: 2vw;
+    padding-left: 1vw;
+    padding-right: 1.5vw;
     
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
-.img_container {
-    width: 40px;
-    height: 40px;
+.logo_container {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
-.img_container img {
-    max-width: 100%; 
-    max-height: 100%; 
-    object-fit: contain;
+.logo-icon {
+    font-size: 50px;
+    color: white;
 }
 .Heading {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     margin-top: 4vh;
     margin-bottom: 7vh;
+}
+
+.pro-manage-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 750;
+    font-size: 18.8px;
+    margin: 0;
+    margin-top: 4px;
+    text-align: center;
 }
 
 .sidebarOption {
     display: flex;
     cursor:pointer;
-    gap:3px;
-    margin-bottom: 10px;
+    gap: 12px;
+    padding: 12px 10px;
+    margin-bottom: 8px;
+    align-items: center;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
 }
+
+.sidebarOption:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+.sidebarOption:hover p {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.sidebarOption:hover .icon_container {
+    font-size: 23px;
+}
+
  .sidebarOption.selected {
-  font-weight: 800;
-  font-size: 22px;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(96, 165, 250, 0.08) 100%);
+  border-left: 3px solid #3b82f6;
+}
+
+.sidebarOption.selected p {
+    font-weight: 800;
+    color: #3b82f6;
+    font-size: 17px;
+}
+
+.sidebarOption.selected .icon_container {
+    font-size: 23px;
+    color: #3b82f6;
 }
 
 .logoutOption {
     display: flex;
-    margin-top: 53vh;
+    position: absolute;
+    bottom: 30px;
     cursor: pointer;
+    gap: 12px;
+    padding: 12px 10px;
+    align-items: center;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    width: calc(100% - 2.5vw);
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
 }
-.sidebarOption p {
-    font-size: 18px;
-    margin-top: 3px;
+
+.logoutOption:hover {
+    background-color: rgba(207, 54, 54, 0.08);
+}
+
+.logoutOption:hover p {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.logoutOption:hover .icon_container {
+    font-size: 23px;
+}
+.icon_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
     color: rgba(112, 112, 112, 1);
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.sidebarOption.selected .icon_container {
+    color: #3b82f6;
+    font-weight: 700;
+    font-size: 23px;
+}
+
+
+.sidebarOption p {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(112, 112, 112, 1);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sidebarOption.selected p {
+    font-weight: 800;
+    color: #3b82f6;
+    font-size: 17px;
 }
 
 .logoutOption p {
-    font-size: 18px;
-    margin-top: 3px;
+    font-size: 16px;
+    font-weight: 600;
     color: rgba(207, 54, 54, 1);
+    margin: 0;
+    line-height: 1.2;
 }

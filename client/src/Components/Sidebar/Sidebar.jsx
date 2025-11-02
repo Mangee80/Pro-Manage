@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import './Sidebar.css';
 import { useNavigate } from "react-router"
 import { logout } from '../../utils/authUtils';
-import codesandbox from '../../assets/icons/codesandbox.png';
-import layout from '../../assets/icons/layout.png';
-import database from '../../assets/icons/database.png';
-import settings from '../../assets/icons/settings.png';
-import Logout from '../../assets/icons/Logout.png';
+import { MdDashboard } from "react-icons/md";
+import { BiBarChartAlt2 } from "react-icons/bi";
+import { IoSettingsOutline } from "react-icons/io5";
+import { FiLogOut } from "react-icons/fi";
+import { HiOutlineViewGridAdd } from "react-icons/hi";
 
 const Sidebar = ({ setSelectedComponent }) => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -34,32 +34,32 @@ const Sidebar = ({ setSelectedComponent }) => {
   return (
     <div className="sidebar">
       <div className='Heading'>
-        <div className='img_container'>
-          <img src={codesandbox} alt="Pro Manage Logo"/>
+        <div className='logo_container'>
+          <HiOutlineViewGridAdd className='logo-icon'/>
         </div>
-        <p style={{ marginTop: '4px', fontFamily: 'Poppins, sans-serif', fontWeight: '750', fontSize: '18.8px'}}>Pro Manage</p>
+        <p className='pro-manage-text'>Pro Manage</p>
       </div>
       <div className={`sidebarOption ${selectedOption === 'Dashboard' ? 'selected' : ''}`} onClick={() => handleOptionClick('Dashboard')}>
-        <div className='img_container'>
-          <img src={layout} alt="Dashboard Icon"/>
+        <div className='icon_container'>
+          <MdDashboard />
         </div>
         <p>Dashboard</p>
       </div>
       <div className={`sidebarOption ${selectedOption === 'Analytics' ? 'selected' : ''}`} onClick={() => handleOptionClick('Analytics')}>
-        <div className='img_container'>
-          <img src={database} alt="Analytics Icon"/>
+        <div className='icon_container'>
+          <BiBarChartAlt2 />
         </div>
         <p>Analytics</p>
       </div>
       <div className={`sidebarOption ${selectedOption === 'Setting' ? 'selected' : ''}`} onClick={() => handleOptionClick('Setting')}>
-        <div className='img_container'>
-          <img src={settings} alt="Settings Icon"/>
+        <div className='icon_container'>
+          <IoSettingsOutline />
         </div>
         <p>Settings</p>
       </div>
       <div className='logoutOption' onClick={() => handleOptionClick('Logout')}>
-        <div className='img_container'>
-          <img src={Logout} alt="Logout Icon"/>
+        <div className='icon_container'>
+          <FiLogOut />
         </div>
         <p>Logout</p>
       </div>

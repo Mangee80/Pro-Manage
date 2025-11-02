@@ -1,14 +1,53 @@
 .board {
     width: 322px; /* Minimum width for each board */
-    height: 79vh;
+    height: calc(79vh - 20px);
+    max-height: calc(85vh - 20px);
     overflow-y: auto;
-    max-height: 100vh; /* Height for each board */
-    background-color: #f0f0f0; /* Background color for each board */
-    padding: 10px;
-    border-radius: 10px;
+    overflow-x: visible;
+    background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+    padding: 15px;
+    border-radius: 15px;
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(200, 200, 200, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Ensure board doesn't create stacking context that affects modal */
+    contain: layout style;
+}
+
+/* Backlog Board - Purple/Gray */
+.board[data-board="Backlog"] {
+    background: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%);
+    border-color: rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+}
+
+/* Todo Board - Blue/Cyan */
+.board[data-board="Todo"] {
+    background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: rgba(59, 130, 246, 0.25);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+}
+
+/* In Progress Board - Orange/Amber */
+.board[data-board="In Progress"] {
+    background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%);
+    border-color: rgba(251, 146, 60, 0.25);
+    box-shadow: 0 4px 15px rgba(251, 146, 60, 0.1);
+}
+
+/* Done Board - Green */
+.board[data-board="Done"] {
+    background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: rgba(34, 197, 94, 0.25);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.1);
+}
+
+.board:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
 }
   
 .board_header {
@@ -22,6 +61,33 @@
   font-family: var(--font-dm-sans);  
   font-size: 18.8px;
   align-items: center;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 10px;
+}
+
+/* Backlog Title */
+.board[data-board="Backlog"] .board_header_title {
+  color: #8b5cf6;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
+}
+
+/* Todo Title */
+.board[data-board="Todo"] .board_header_title {
+  color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.15) 100%);
+}
+
+/* In Progress Title */
+.board[data-board="In Progress"] .board_header_title {
+  color: #f97316;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(253, 186, 116, 0.15) 100%);
+}
+
+/* Done Title */
+.board[data-board="Done"] .board_header_title {
+  color: #22c55e;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(74, 222, 128, 0.15) 100%);
 }
 
 
@@ -47,11 +113,16 @@
   
   .add-card-button {
     cursor: pointer;
-    color: rgba(118, 117, 117, 1);
+    color: #3b82f6;
     font-size: 30px;
-    border-radius: 5px;
+    border-radius: 8px;
+    padding: 5px 10px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.15) 100%);
   }
   
   .add-card-button:hover {
-    background-color: skyblue;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    transform: scale(1.1);
   }

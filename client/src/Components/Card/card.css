@@ -6,6 +6,7 @@
     position: relative; /* Position relative for absolute positioning of toggle button */
     height: auto;
     width: 90%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
   .dropdown-container {
     position: absolute;
@@ -45,8 +46,10 @@
   }
   .checkHeder {
     font-family: var(--font-dm-sans);
-    font-weight: 300;
+    font-weight: 500;
     font-size: 17px;
+    color: #475569;
+    margin-bottom: 8px;
   }
   
   .toggle-checklists {
@@ -54,10 +57,34 @@
     position: absolute; /* Position toggle button */
     top: 90px; /* Adjust top position */
     right: 20px; /* Adjust right position */
-    width: 24px; /* Set width */
-    height: 24px; /* Set height */
-    background-color: rgba(238, 236, 236, 1);
-    border-radius: 7px;
+    width: 28px; /* Set width */
+    height: 28px; /* Set height */
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(96, 165, 250, 0.15) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .toggle-checklists:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transform: scale(1.1);
+    border-color: #3b82f6;
+  }
+
+  .toggle-checklists:hover svg {
+    color: white;
+  }
+
+  /* Arrow rotation animation */
+  .toggle-checklists svg {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .toggle-checklists.rotated svg {
+    transform: rotate(180deg);
   }
   
   
@@ -68,53 +95,181 @@
     margin-top: 2px;
   }
   
-  .checklists.visible {
-    display: block;
-    margin-top: 18px;
-  }
-  
   .checklists {
-    display: none;
     margin-bottom: 8px;
+    margin-top: 18px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: translateY(-15px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .checklists.visible {
+    opacity: 1;
+    max-height: 2000px;
+    transform: translateY(0);
+    pointer-events: auto;
+    animation: slideDownFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideDownFade {
+    0% {
+      opacity: 0;
+      transform: translateY(-15px);
+      max-height: 0;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 2000px;
+    }
   }
 
   
   .checklists li {
     list-style: none;
-    margin-bottom: 10px;
-    padding: 8.7px;
-    border: 2px solid rgba(226, 226, 226, 1);
-    border-radius: 13.1px;
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    border: 2px solid rgba(226, 226, 226, 0.5);
+    border-radius: 12px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-10px);
+    animation: fadeInSlide 0.4s ease forwards;
+  }
+
+  /* Staggered animation for each item */
+  .checklists.visible li:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .checklists.visible li:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .checklists.visible li:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  .checklists.visible li:nth-child(4) {
+    animation-delay: 0.25s;
+  }
+  .checklists.visible li:nth-child(5) {
+    animation-delay: 0.3s;
+  }
+  .checklists.visible li:nth-child(n+6) {
+    animation-delay: 0.35s;
+  }
+
+  @keyframes fadeInSlide {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .checklists li:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    background: linear-gradient(145deg, #f0f7ff 0%, #e6f2ff 100%);
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Completed checklist item styling */
+  .checklists li.completed {
+    border-color: rgba(34, 197, 94, 0.3);
+    background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
+    opacity: 0.85;
+  }
+
+  .checklists li.completed:hover {
+    border-color: rgba(34, 197, 94, 0.5);
+    background: linear-gradient(145deg, #dcfce7 0%, #bbf7d0 100%);
+  }
+
+  .checklists li.completed .item-title {
+    text-decoration: line-through;
+    color: #64748b;
   }
   
   .checklists li input[type="checkbox"] {
     margin-right: 16px;
-    border-radius: 20px;
-    background-color: rgba(23, 162, 184, 1);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+    border-radius: 4px;
+    transition: all 0.2s ease;
   }
+
+  .checklists li input[type="checkbox"]:checked {
+    accent-color: #22c55e;
+    transform: scale(1.1);
+  }
+
+  .checklists li input[type="checkbox"]:hover {
+    transform: scale(1.15);
+  }
+
   .checklists li .item-title {
     max-width: 150px; /* Adjust the maximum width as needed */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-family: var(--font-dm-sans);
+    font-size: 14px;
+    color: #334155;
+    transition: all 0.2s ease;
   }
  
+  .board-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
   .dueDateChip {
-    padding: 4px 7px;
+    padding: 5px 10px;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    line-height: 1.4;
   }
   
   .board-chip {
-    display: inline-block;
-    background-color: rgba(238, 236, 236, 1);
-    padding: 5px 8px;
-    margin-left: 8px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    padding: 5px 12px;
     border-radius: 14px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    color: #475569;
+    border: 1.5px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    line-height: 1.4;
   }
   
   .board-chip:hover {
-    background-color: gray;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
   }  

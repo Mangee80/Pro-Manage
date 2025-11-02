@@ -1,37 +1,74 @@
 /* Dashboard.css */
 .dashboard-container {
-    width: 85vw; 
+    width: 88vw; 
     overflow-x: auto;
     padding-left: 22px;
-    height: 85vh;
+    padding-right: 40px;
+    height: 86vh;
     box-sizing: border-box;
     overflow-y: hidden;
+    background: #f5f7fa;
+}
+
+.dashboard-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.dashboard-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.dashboard-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.dashboard-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 .dashboard-header {
-    height: 15vh;
+    height: 14vh;
     box-sizing: border-box;
-    padding: 17px;
+    padding: 15px 17px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    color: white;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+    margin-bottom: 15px;
+}
+.dashboard-header p {
+    color: white;
 }
 .dashboard {
     display: flex;
     gap: 20px;
+    padding: 10px 0 20px 0;
+    padding-right: 20px;
+    align-items: flex-start;
+    min-width: fit-content;
 }
 
 .headerboard {
-    margin-top: 30px;
+    margin-top: 20px;
     margin-left: 5px;
-    font-size: 35px;
+    font-size: 34px;
     font-weight: 500;
     font-family: 'Poppins', sans-serif;
+    color: white;
 }
 .currentDate {
     position: absolute;
     right: 30px;
-    top: 30px;
-
-    color: rgba(112, 112, 112, 1);
-    font-size: 20px;
+    top: 20px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 18px;
     font-family: 'Poppins', sans-serif;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 15px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
   

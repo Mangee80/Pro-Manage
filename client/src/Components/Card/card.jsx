@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import './card.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -151,6 +152,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
 
     return (
+    <>
     <div className="card">
       {/* Render priority */}
       <div style={{ display: 'flex', gap: '7px' }}>
@@ -187,18 +189,16 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       <p className='checkHeder'>Checklist ({totalCompleted}/{checklistSize})</p>
 
       {/* Toggle button for checklists */}
-      <div className="toggle-checklists" onClick={toggleChecklist}>
-        {isChecklistOpen ? (
-          <span style={{ position: 'absolute',padding: '4px' }}><SlArrowUp /></span>
-        ) : (
-          <span style={{ position: 'absolute',padding: '4px' }}><SlArrowDown /></span>
-        )}
+      <div className={`toggle-checklists ${isChecklistOpen ? 'rotated' : ''}`} onClick={toggleChecklist}>
+        <span style={{ position: 'absolute', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <SlArrowDown />
+        </span>
       </div>
 
       {/* Render checklists */}
       <ul className={isChecklistOpen ? "checklists visible" : "checklists"}>
         {checklistItems.map((item, index) => (
-          <li key={index}>
+          <li key={index} className={item.completed ? "completed" : ""}>
             <input
               type="checkbox"
               checked={item.completed}
@@ -215,7 +215,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </ul>
 
 
-      <div style={{display: 'flex',justifyContent: "space-between" , marginTop: '30px'}}>
+      <div style={{display: 'flex', justifyContent: "space-between", alignItems: "center", marginTop: '30px'}}>
         
           {/* Render due date chip */}
           <div className="dueDateChip" style={{ backgroundColor: dueDateChipColor }}>{card.dueDate}</div>
@@ -237,11 +237,14 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
           </div>
 
       </div>
-
-      {isEditing && (
-        <CreateNewCardForm cardData={card} onCancel={() => setIsEditing(false)} /> // Show CreateNewCardForm when editing
-      )}
     </div>
+    
+    {/* Render edit form using Portal outside the card */}
+    {isEditing && createPortal(
+      <CreateNewCardForm cardData={card} onCancel={() => setIsEditing(false)} />,
+      document.body
+    )}
+  </>
   );
 };
 

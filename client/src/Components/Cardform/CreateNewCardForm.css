@@ -1,3 +1,12 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Modal Backdrop */
 .modal-backdrop {
   position: fixed;
@@ -5,21 +14,23 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(47, 47, 47, 0.75);
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.4), rgba(128, 128, 128, 0.3));
+  backdrop-filter: blur(4px);
   z-index: 9999;
-  backdrop-filter: blur(2px);
   isolation: isolate;
   will-change: opacity;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .form_Container {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 530px;
-  height: 470px;
+  width: 550px;
+  max-height: 85vh;
+  min-height: 400px;
   transform: translate(-50%, -50%);
-  padding: 30px;
+  padding: 0;
   border: 1px solid #ccc;
   border-radius: 18px;
   box-sizing: border-box;
@@ -28,14 +39,52 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   isolation: isolate;
   will-change: transform;
-  /* Ensure modal is not affected by any parent transforms */
   transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.form-content-wrapper {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.form-content-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-content-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.form-content-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8B4513, #A0522D);
+  border-radius: 10px;
+}
+
+.form-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #A0522D, #654321);
+}
+
+.form-footer {
+  padding: 20px 30px;
+  border-top: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 form label {
-  font-size: 17px;
+  font-size: 16px;
   margin-bottom: 8px;
   font-family: var(--font-dm-sans);
+  display: block;
+  font-weight: 600;
 }
 
 label::after {
@@ -45,7 +94,6 @@ label::after {
 }
 
 input[type="text"][name="title"] {
-  border-color: red;
   width: 98.8%;
   padding: 7px;
   padding-left: 17px;
@@ -56,16 +104,37 @@ input[type="text"][name="title"] {
   box-sizing: border-box;
 }
 
+input[type="text"][name="title"]:focus {
+  outline: none;
+  border-color: #8B4513;
+}
+
+input[type="text"][name="title"].error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
 
 .priority-clickable-div {
   cursor: pointer;
   display: inline-block;
-  margin-right:7px;
+  margin-right: 7px;
   border: 1px solid #ccc;
   border-radius: 7px;
   padding: 5.4px;
   margin-bottom: 20px;
   font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.priority-clickable-div:hover {
+  background-color: #f0f0f0;
+}
+
+.priority-clickable-div.selected {
+  background: linear-gradient(135deg, #8B4513, #A0522D);
+  color: white;
+  border-color: #8B4513;
 }
 
 .priority-clickable-div .dot {
@@ -79,34 +148,112 @@ input[type="text"][name="title"] {
 .checklist-item {
   position: relative;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
 .deleteDiv {
   position: absolute;
   top: 0px;
-  right: 10.8px;
+  right: 10px;
   width: 30px;
   height: 30px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
 }
 
-.custom-input {
+.checklist-item:hover .deleteDiv {
+  opacity: 1;
+}
+
+.deleteDiv img {
+  width: 100%;
+  height: 100%;
+}
+
+.due-date-chip {
   cursor: pointer;
-  position: fixed;
-  bottom: 30px;
-  color: rgba(112, 112, 112, 1);
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8.8px;
-  padding-left: 17px;
-  width: 110px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.1), rgba(160, 82, 45, 0.1));
+  border: 2px solid #8B4513;
+  border-radius: 20px;
+  color: #654321;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.15);
 }
 
-.calendar-container {
-  
-  position: absolute;
-  bottom: -50px;
-  left: 100px;
-  margin-top: 16px; /* Adjust the top margin as needed */
+.due-date-chip:hover {
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.2), rgba(160, 82, 45, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.25);
+}
+
+.calendar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10002;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.calendar-portal-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  padding: 15px;
+  z-index: 10003;
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calendar-portal-container .react-datepicker__header {
+  background: linear-gradient(135deg, #8B4513, #A0522D);
+  border-radius: 12px 12px 0 0;
+}
+
+.calendar-portal-container .react-datepicker__current-month {
+  color: white;
+  font-weight: 600;
+}
+
+.calendar-portal-container .react-datepicker__day-name {
+  color: white;
+}
+
+.calendar-portal-container .react-datepicker__day--selected {
+  background: linear-gradient(135deg, #8B4513, #A0522D) !important;
+  border-radius: 8px;
+}
+
+.calendar-portal-container .react-datepicker__day:hover {
+  background: #DEB887;
+  border-radius: 8px;
+  color: #654321;
 }
 
 .img_container img {
@@ -116,16 +263,28 @@ input[type="text"][name="title"] {
 }
 
 .checklist-item input[type="text"] {
-  width: 98.8%;
-  padding: 5px;
+  flex: 1;
+  padding: 8px;
   padding-left: 40px;
-  padding-right: 50px;
-  margin-right: 10px;
+  padding-right: 45px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 14px;
   box-sizing: border-box;
+  transition: all 0.2s ease;
 }
+
+.checklist-item input[type="text"]:focus {
+  outline: none;
+  border-color: #8B4513;
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
+}
+
+.checklist-item input[type="text"].error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
 .checklist-item input[type="checkbox"] {
   position: absolute;
   top: 5px;
@@ -138,6 +297,7 @@ input[type="text"][name="title"] {
   font-family: var(--font-dm-sans);
   color: rgba(118, 117, 117, 1);
   cursor: pointer;
+  margin-top: 10px;
 }
 button {
   padding: 10px;
@@ -146,20 +306,36 @@ button {
   border: 2px solid white;
 }
 
-
 .createbtn {
-  position:fixed;
-  bottom: 30px;
-  right: 40px;
-  background-color: rgba(23, 162, 184, 1);
+  position: relative;
+  background: linear-gradient(135deg, #8B4513, #A0522D);
   font-weight: bold;
   color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+}
+
+.createbtn:hover {
+  background: linear-gradient(135deg, #A0522D, #654321);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
 }
 
 .cancelbtn {
-  position:fixed;
-  bottom: 30px;
-  right: 160px;
-  border: 2px solid red;
+  position: relative;
+  border: 2px solid #8B4513;
   background-color: white;
+  color: #654321;
+  transition: all 0.3s ease;
+}
+
+.cancelbtn:hover {
+  background-color: #FFF8DC;
+  border-color: #A0522D;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 5px;
 }

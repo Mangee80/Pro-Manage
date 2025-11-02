@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Styles.module.css';
 import { GoEye, GoEyeClosed, GoPerson, GoLock } from "react-icons/go";
+import { getApiUrl } from '../../config/apiConfig';
 
 const Settings = () => {
   const [formData, setFormData] = useState({
@@ -71,7 +72,7 @@ const Settings = () => {
         }
       }
 
-      const response = await fetch(`http://localhost:5000/api/auth/updateSettings`, {
+      const response = await fetch(getApiUrl('api/auth/updateSettings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

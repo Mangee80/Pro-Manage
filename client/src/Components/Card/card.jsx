@@ -7,6 +7,7 @@ import { SlArrowUp } from "react-icons/sl";
 import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
 import { SlArrowDown } from "react-icons/sl";
 import { HiDotsHorizontal } from "react-icons/hi";
+import { getApiUrl } from '../../config/apiConfig';
 const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   const [checklistItems, setChecklistItems] = useState(card.checklists);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -58,7 +59,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
     // Update backend here
     try {
-      const response = await fetch(`https://pro-manage-one.vercel.app/api/card/updateChecklistItem/${card._id}`, {
+      const response = await fetch(getApiUrl(`api/card/updateChecklistItem/${card._id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleBoardChipClick = async (newTag) => {
         try {
-          const response = await fetch(`https://pro-manage-one.vercel.app/api/card/updatetag/${card._id}`, {
+          const response = await fetch(getApiUrl(`api/card/updatetag/${card._id}`), {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleDelete = () => {
     // request to delete the card from the database
-    fetch(`https://pro-manage-one.vercel.app/api/card/deleteCard/${card._id}`, {
+    fetch(getApiUrl(`api/card/deleteCard/${card._id}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'

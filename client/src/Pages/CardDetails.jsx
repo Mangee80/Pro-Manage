@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; // Import useParams hook
 import './cardDetails.css';
 import codesandboxes from '../assets/icons/codesandbox.png';
+import { getApiUrl } from '../config/apiConfig';
 
 export const CardDetails = () => {
   const { id } = useParams(); // Get the id parameter from the URL
@@ -10,7 +11,7 @@ export const CardDetails = () => {
   useEffect(() => {
     const fetchCardDetails = async () => {
       try {
-        const response = await fetch(`https://pro-manage-one.vercel.app/api/card/publiccard/${id}`);
+        const response = await fetch(getApiUrl(`api/card/publiccard/${id}`));
         if (!response.ok) {
           throw new Error('Failed to fetch card details');
         }

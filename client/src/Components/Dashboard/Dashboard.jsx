@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css'; // Import CSS file for Dashboard styles
 import Board from '../Board/Board';
+import { getApiUrl } from '../../config/apiConfig';
+import { apiRequest } from '../../utils/authUtils';
 
 function Dashboard() {
   const [boards, setBoards] = useState([]);
@@ -21,12 +23,9 @@ function Dashboard() {
         throw new Error('User ID not found in localStorage');
       }
   
-      // Fetch user-specific cards with token included in the headers
-      const response = await fetch(`https://pro-manage-one.vercel.app/api/card/getcards?userID=${userID}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      // Fetch user-specific cards with authentication token
+      const response = await apiRequest(`${getApiUrl('api/card/getcards')}?userID=${userID}`, {
+        method: 'GET'
       });
   
       if (!response.ok) {

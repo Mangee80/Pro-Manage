@@ -1,6 +1,7 @@
 // JWT Token Management Utilities
+import { API_BASE_URL as BASE_URL } from '../config/apiConfig';
 
-const API_BASE_URL = 'http://localhost:5000/api'; // Changed to port 5000
+const API_BASE_URL = `${BASE_URL}/api`;
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'accessToken';

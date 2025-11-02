@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import DatePicker from 'react-datepicker';
 import './CreateNewCardForm.css';
 import del from '../../assets/icons/delete.png';
 import 'react-datepicker/dist/react-datepicker.css';
+import { getApiUrl } from '../../config/apiConfig';
 
-function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange }) {
+function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange, error }) {
   const [isChecked, setIsChecked] = useState(item.completed);
 
   const handleChange = () => {
@@ -15,7 +17,12 @@ function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChe
   return (
     <div className="checklist-item">
       <input type="checkbox" checked={isChecked} onChange={handleChange} />
-      <input type="text" value={item.title} onChange={(e) => handleInputChange(index, e.target.value)} />
+      <input 
+        type="text" 
+        value={item.title} 
+        onChange={(e) => handleInputChange(index, e.target.value)}
+        className={error ? 'error' : ''}
+      />
       <div className="deleteDiv" onClick={() => handleDeleteChecklistItem(index)}>
         <img src={del} alt="delete" />
       </div>
@@ -33,7 +40,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     tag: cardData.tag || 'Todo',
   });
   const [showCalendar, setShowCalendar] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
 
   const formRef = useRef(null);
 
@@ -49,12 +56,20 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     };
   }, [onCancel]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      });
+    }
   };
 
   const handlePriorityClick = (color, text) => {
@@ -63,6 +78,13 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       priorityColor: color,
       priorityText: text,
     });
+    // Clear error when priority is selected
+    if (errors.priorityColor) {
+      setErrors({
+        ...errors,
+        priorityColor: ''
+      });
+    }
   };
 
   const handleDueDateChange = (date) => {
@@ -70,7 +92,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       ...formData,
       dueDate: date,
     });
-    setShowCalendar(false); // Hide the calendar after selecting a date
+    // Don't hide calendar, let user select or close manually
   };
 
   const handleAddChecklistItem = () => {
@@ -105,16 +127,47 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       ...formData,
       checklists: updatedChecklists,
     });
+    // Clear error when user starts typing
+    if (errors.checklists && errors.checklists[index]) {
+      const updatedErrors = { ...errors };
+      delete updatedErrors.checklists[index];
+      setErrors(updatedErrors);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (!formData.title || !formData.priorityColor || !formData.priorityText) {
-        setError('Please fill in all required fields');
-        return;
+    
+    // Validation
+    const newErrors = {};
+    
+    if (!formData.title || formData.title.trim() === '') {
+      newErrors.title = 'Title is required';
+    }
+    
+    if (!formData.priorityColor || !formData.priorityText) {
+      newErrors.priorityColor = 'Please select a priority';
+    }
+    
+    // Check if any checklist items are empty
+    const emptyChecklistItems = [];
+    formData.checklists.forEach((item, index) => {
+      if (!item.title || item.title.trim() === '') {
+        emptyChecklistItems[index] = 'Checklist item cannot be empty';
       }
-
+    });
+    if (emptyChecklistItems.length > 0) {
+      newErrors.checklists = emptyChecklistItems;
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setErrors({});
+    
+    try {
       const formattedDueDate = formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : null;
 
       const userID = localStorage.getItem('userID');
@@ -124,7 +177,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
 
       let response;
       if (cardData._id) {
-        response = await fetch(`http://localhost:5000/api/card/editcards/${cardData._id}`, {
+        response = await fetch(getApiUrl(`api/card/editcards/${cardData._id}`), {
           method: 'PUT',
           headers: headers,
           body: JSON.stringify({
@@ -134,7 +187,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
           })
         });
       } else {
-        response = await fetch('https://pro-manage-one.vercel.app/api/card/createcards', {
+        response = await fetch(getApiUrl('api/card/createcards'), {
           method: 'POST',
           headers: headers,
           body: JSON.stringify({
@@ -159,12 +212,12 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
         dueDate: null,
         tag: 'Todo',
       });
-      setError('');
+      setErrors({});
       onCancel(); // Close the form
       window.location.reload(); // Reload the page
     } catch (error) {
       console.error('Error creating new card:', error);
-      setError('Error creating new card. Please try again.');
+      setErrors({ submit: 'Error creating new card. Please try again.' });
     }
   };
 
@@ -178,66 +231,92 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     <>
       <div className="modal-backdrop" onClick={onCancel}></div>
       <form onSubmit={handleSubmit} className="form_Container" ref={formRef}>
-      <div style={{display:'flex', flexDirection:'column'}}>
-        <label>Title:</label>
-        <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder='Enter Text Title' required />
-      </div>
-
-      <div style={{display:'flex'}}>
-        <label style={{marginTop: '5px', marginRight: '8px'}}>Priority:</label>
-        <div>
-          {priorities.map((priority, index) => (
-            <div
-              key={index}
-              className="priority-clickable-div"
-              onClick={() => handlePriorityClick(priority.color, priority.text)}
-            >
-              <span className="dot" style={{ backgroundColor: priority.color }}></span>
-              <span className="text">{priority.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{display:'flex', flexDirection: 'column', marginTop: '18px', maxHeight: '170px', overflowY:'auto', overflowX: 'hidden'}}>
-        <label style={{ marginBottom: '10px'}}>Checklist:</label>
-        <div>
-          {formData.checklists.map((item, index) => (
-            <ChecklistItem
-              key={index}
-              item={item}
-              index={index}
-              handleToggleChecklistItem={handleToggleChecklistItem}
-              handleDeleteChecklistItem={handleDeleteChecklistItem}
-              handleInputChange={handleInputChange}
+        <div className="form-content-wrapper">
+          <div style={{display:'flex', flexDirection:'column'}}>
+            <label>Title:</label>
+            <input 
+              type="text" 
+              name="title" 
+              value={formData.title} 
+              onChange={handleChange} 
+              placeholder='Enter Text Title' 
+              className={errors.title ? 'error' : ''}
+              required 
             />
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className='addChecklist' onClick={handleAddChecklistItem}><span style={{fontSize: '23px'}}>+</span> Add New</div>
-      </div>
-
-      <div style={{ position: 'relative' }}>
-        <div className="custom-input" onClick={() => setShowCalendar(!showCalendar)}>
-          {formData.dueDate ? formData.dueDate.toDateString() : 'Select Due Date'}
-        </div>
-        {showCalendar && (
-          <div className="calendar-container">
-            <DatePicker
-              selected={formData.dueDate}
-              onChange={handleDueDateChange}
-              inline
-            />
+            {errors.title && <div className="error" style={{marginTop: '5px', marginBottom: '10px'}}>{errors.title}</div>}
           </div>
+
+          <div style={{display:'flex', flexDirection: 'column', marginBottom: '20px', marginTop: '20px'}}>
+            <label style={{marginTop: '5px', marginBottom: '10px'}}>Priority:</label>
+            <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+              {priorities.map((priority, index) => (
+                <div
+                  key={index}
+                  className={`priority-clickable-div ${formData.priorityColor === priority.color ? 'selected' : ''}`}
+                  onClick={() => handlePriorityClick(priority.color, priority.text)}
+                >
+                  <span className="dot" style={{ backgroundColor: priority.color }}></span>
+                  <span className="text">{priority.text}</span>
+                </div>
+              ))}
+            </div>
+            {errors.priorityColor && <div className="error" style={{marginTop: '10px', marginBottom: '0'}}>{errors.priorityColor}</div>}
+          </div>
+
+          <div style={{display:'flex', flexDirection: 'column', marginTop: '20px'}}>
+            <label style={{ marginBottom: '10px'}}>Checklist:</label>
+            <div>
+              {formData.checklists.map((item, index) => (
+                <div key={index}>
+                  <ChecklistItem
+                    item={item}
+                    index={index}
+                    handleToggleChecklistItem={handleToggleChecklistItem}
+                    handleDeleteChecklistItem={handleDeleteChecklistItem}
+                    handleInputChange={handleInputChange}
+                    error={errors.checklists && errors.checklists[index]}
+                  />
+                  {errors.checklists && errors.checklists[index] && (
+                    <div className="error" style={{marginTop: '-10px', marginBottom: '8px', fontSize: '12px'}}>
+                      {errors.checklists[index]}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className='addChecklist' onClick={handleAddChecklistItem}><span style={{fontSize: '23px'}}>+</span> Add New</div>
+          </div>
+
+          {errors.submit && <div className="error" style={{marginTop: '20px'}}>{errors.submit}</div>}
+        </div>
+
+        <div className="form-footer">
+          <div className="due-date-chip" onClick={() => setShowCalendar(!showCalendar)}>
+            <span style={{marginRight: '8px'}}>📅</span>
+            {formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Due Date'}
+          </div>
+          <div style={{display: 'flex', gap: '10px'}}>
+            <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
+            <button className="createbtn" type="submit">{cardData._id ? 'Edit Card' : 'Create Card'}</button>
+          </div>
+        </div>
+      
+        {showCalendar && ReactDOM.createPortal(
+          <div className="calendar-backdrop" onClick={() => setShowCalendar(false)}>
+            <div className="calendar-portal-container" onClick={(e) => e.stopPropagation()}>
+              <DatePicker
+                selected={formData.dueDate}
+                onChange={(date) => {
+                  handleDueDateChange(date);
+                  setShowCalendar(false);
+                }}
+                inline
+              />
+            </div>
+          </div>,
+          document.body
         )}
-      </div>
-
-      {error && <div className="error">{error}</div>}
-
-      <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
-      <button className="createbtn" type="submit">{cardData._id ? 'Edit Card' : 'Create Card'}</button>
-    </form>
+      </form>
     </>
   );
 };

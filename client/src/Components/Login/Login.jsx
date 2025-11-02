@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './Login.module.css';
 import { useNavigate } from "react-router";
 import { setTokens } from '../../utils/authUtils';
+import { getApiUrl } from '../../config/apiConfig';
 
 // Icons
 import { HiOutlineMail } from "react-icons/hi";
@@ -33,7 +34,7 @@ export const LoginForm = () => {
       setLoginError("");
       
       try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch(getApiUrl('api/auth/login'), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

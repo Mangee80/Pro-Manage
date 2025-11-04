@@ -3,8 +3,10 @@
   padding: 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   height: 100vh;
+  width: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Analytics Header - Compact */
@@ -66,10 +68,12 @@
 /* Content Wrapper */
 .analytics-content-wrapper {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 400px;
   gap: 16px;
   height: calc(100vh - 120px);
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Left - Main Content */
@@ -78,16 +82,20 @@
   flex-direction: column;
   gap: 16px;
   overflow: hidden;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Right Side - Summary Cards Sidebar */
 .summary-cards-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   overflow-y: auto;
   padding-right: 4px;
   max-height: calc(100vh - 120px);
+  width: 100%;
+  min-width: 0;
 }
 
 .summary-card-compact {
@@ -250,13 +258,12 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Middle - Charts Row */
-.charts-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  flex-shrink: 0;
-  height: 240px;
+/* Charts in Right Sidebar */
+.pie-chart-card-compact,
+.bar-chart-card-compact {
+  flex: 1;
+  min-height: 200px;
+  max-height: 300px;
 }
 
 /* Bottom - Gantt Section */
@@ -300,6 +307,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+/* Chart cards in sidebar should have fixed heights */
+.summary-cards-sidebar .pie-chart-card-compact,
+.summary-cards-sidebar .bar-chart-card-compact {
+  height: 280px;
+  min-height: 280px;
+  max-height: 280px;
 }
 
 /* Chart Legend - Compact */
@@ -427,9 +443,15 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .analytics-content-wrapper {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
 @media (max-width: 1200px) {
   .analytics-content-wrapper {
-    grid-template-columns: 1fr 240px;
+    grid-template-columns: 1fr 300px;
   }
   
   .charts-row {
@@ -570,6 +592,23 @@
   white-space: nowrap;
 }
 
+/* Week Markers for Gantt Chart */
+.gantt-week-markers {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+
+.gantt-week-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(226, 232, 240, 0.6);
+  z-index: 1;
+}
+
 .gantt-body {
   flex: 1;
   overflow-y: auto;
@@ -616,42 +655,35 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.gantt-task-tag {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: #f1f5f9;
-  color: #475569;
-  font-weight: 600;
-  white-space: nowrap;
+  font-size: 13px;
 }
 
 .gantt-bar-container {
   position: relative;
-  height: 28px;
-  background: #f8fafc;
+  height: 32px;
+  background: linear-gradient(to right, #f8fafc 0%, #ffffff 100%);
   border-radius: 6px;
   overflow: visible;
+  border: 1px solid rgba(226, 232, 240, 0.5);
 }
 
 .gantt-bar {
   position: absolute;
-  height: 28px;
-  min-width: 4px;
+  height: 30px;
+  min-width: 6px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 6px;
+  padding: 0 8px;
   color: white;
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .gantt-bar:hover {

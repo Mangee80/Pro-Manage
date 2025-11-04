@@ -122,13 +122,13 @@ const GanttChartView = ({ cards }) => {
   const ganttData = prepareGanttData();
   const today = new Date();
   
-  // Calculate date range for display (30 days view)
+  // Calculate date range for display (60 days view for better visibility)
   const startViewDate = new Date(today);
-  startViewDate.setDate(startViewDate.getDate() - 7);
+  startViewDate.setDate(startViewDate.getDate() - 14);
   const endViewDate = new Date(today);
-  endViewDate.setDate(endViewDate.getDate() + 23);
+  endViewDate.setDate(endViewDate.getDate() + 46);
   
-  const daysInView = 30;
+  const daysInView = 60;
 
   const getDatePosition = (date) => {
     const diffDays = Math.ceil((date - startViewDate) / (1000 * 60 * 60 * 24));
@@ -160,15 +160,29 @@ const GanttChartView = ({ cards }) => {
           <span>Task</span>
         </div>
         <div className="gantt-timeline-column">
-          {/* Date labels */}
+          {/* Date labels - More detailed */}
           <div className="gantt-dates-row">
-            {Array.from({ length: 6 }).map((_, i) => {
+            {Array.from({ length: 13 }).map((_, i) => {
               const date = new Date(startViewDate);
               date.setDate(date.getDate() + (i * 5));
               return (
                 <div key={i} className="gantt-date-label" style={{ left: `${(i * 5 / daysInView) * 100}%` }}>
                   {formatDateLabel(date)}
                 </div>
+              );
+            })}
+          </div>
+          {/* Week markers */}
+          <div className="gantt-week-markers">
+            {Array.from({ length: Math.ceil(daysInView / 7) }).map((_, i) => {
+              const weekStart = new Date(startViewDate);
+              weekStart.setDate(weekStart.getDate() + (i * 7));
+              return (
+                <div 
+                  key={i} 
+                  className="gantt-week-marker" 
+                  style={{ left: `${(i * 7 / daysInView) * 100}%` }}
+                />
               );
             })}
           </div>
@@ -191,9 +205,8 @@ const GanttChartView = ({ cards }) => {
               <div className="gantt-task-name">
                 <div className="gantt-task-priority" style={{ backgroundColor: item.priorityColor }} />
                 <span className="gantt-task-title" title={item.title}>
-                  {item.title.length > 20 ? `${item.title.substring(0, 20)}...` : item.title}
+                  {item.title.length > 30 ? `${item.title.substring(0, 30)}...` : item.title}
                 </span>
-                <span className="gantt-task-tag">{item.tag}</span>
               </div>
               <div className="gantt-bar-container">
                 <div
@@ -377,86 +390,19 @@ const Analytics = () => {
       </div>
 
       <div className="analytics-content-wrapper">
-        {/* Left - Main Content */}
+        {/* Left - Main Content - Gantt Chart */}
         <div className="analytics-main-content">
-          {/* Top - Gantt Chart */}
           <div className="gantt-section">
             <ChartCard title="Task Timeline (Gantt Chart)" className="gantt-chart-card-compact">
               <GanttChartView cards={cardsData} />
             </ChartCard>
           </div>
-
-          {/* Middle - Charts Side by Side */}
-          <div className="charts-row">
-            {/* Task Status Distribution */}
-            <ChartCard title="Task Status Distribution" className="pie-chart-card-compact">
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie
-                    data={taskStatusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={90}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {taskStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value, name) => [value, name]}
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="chart-legend-compact">
-                {taskStatusData.map((item, index) => (
-                  <div key={index} className="legend-item-compact">
-                    <div className="legend-color-compact" style={{ backgroundColor: item.color }}></div>
-                    <span className="legend-label-compact">{item.name}</span>
-                    <span className="legend-value-compact">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
-
-            {/* Priority Distribution */}
-            <ChartCard title="Priority Distribution" className="bar-chart-card-compact">
-              <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={priorityData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <XAxis dataKey="name" stroke="#6B7280" />
-                  <YAxis stroke="#6B7280" />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: '#fff',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {priorityData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
-          </div>
         </div>
 
-        {/* Right Side - Summary Cards & Task Breakdown */}
+        {/* Right Side - Charts & Summary Cards */}
         <div className="summary-cards-sidebar">
-          {/* Task Breakdown Table */}
-          <div className="detailed-stats-compact">
+          {/* Task Breakdown Table - Commented out for future use */}
+          {/* <div className="detailed-stats-compact">
             <ChartCard title="Task Breakdown" className="stats-table-card-compact">
               <div className="stats-table-compact">
                 <div className="stats-table-header-compact">
@@ -488,7 +434,70 @@ const Analytics = () => {
                 ))}
               </div>
             </ChartCard>
-          </div>
+          </div> */}
+
+          {/* Task Status Distribution Chart */}
+          <ChartCard title="Task Status Distribution" className="pie-chart-card-compact">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={taskStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={80}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {taskStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name) => [value, name]}
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="chart-legend-compact">
+              {taskStatusData.map((item, index) => (
+                <div key={index} className="legend-item-compact">
+                  <div className="legend-color-compact" style={{ backgroundColor: item.color }}></div>
+                  <span className="legend-label-compact">{item.name}</span>
+                  <span className="legend-value-compact">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </ChartCard>
+
+          {/* Priority Distribution Chart */}
+          <ChartCard title="Priority Distribution" className="bar-chart-card-compact">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={priorityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {priorityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
 
           {/* Summary Cards */}
           <SummaryCard

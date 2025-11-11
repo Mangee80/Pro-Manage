@@ -706,6 +706,51 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Checklist segment styles for Gantt chart */
+.gantt-bar-segment {
+  position: absolute;
+  height: 24px;
+  min-width: 4px;
+  border-radius: 4px;
+  top: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  opacity: 1;
+}
+
+.gantt-bar-segment:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  z-index: 5;
+  height: 26px;
+  top: 3px;
+}
+
+.gantt-bar-segment.active {
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.gantt-bar-segment.inactive {
+  opacity: 0.5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  background: #cbd5e1 !important;
+}
+
+.gantt-bar-segment.past {
+  opacity: 0.6;
+}
+
+.gantt-bar-segment.completed {
+  opacity: 0.9;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(16, 185, 129, 1) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
 .gantt-empty-state {
   display: flex;
   flex-direction: column;

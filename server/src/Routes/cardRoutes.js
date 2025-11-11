@@ -73,13 +73,27 @@ router.post('/createcards', authenticateToken, async (req, res) => {
     try {
       const { title, priorityColor, priorityText, checklists, dueDate, tag } = req.body;
       const createdBy = req.user.userId; // Get user ID from authenticated token
+      
+      // Process checklists to add timestamps for new items
+      const processedChecklists = (checklists || []).map(checklist => {
+        const now = new Date();
+        return {
+          ...checklist,
+          createdAt: checklist.createdAt ? new Date(checklist.createdAt) : now,
+          lastModified: now,
+          activityHistory: checklist.activityHistory || [{
+            date: now,
+            action: 'created'
+          }]
+        };
+      });
   
       // Create a new card object
       const newCard = new Card({
         title,
         priorityColor,
         priorityText,
-        checklists,
+        checklists: processedChecklists,
         dueDate,
         tag,
         createdBy // Link the card to the authenticated user
@@ -127,13 +141,56 @@ router.put('/editcards/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Card not found or access denied' });
     }
 
+    // Process checklists to track modifications
+    const now = new Date();
+    const processedChecklists = (checklists || []).map((newChecklist, index) => {
+      const existingChecklist = card.checklists[index];
+      
+      // If checklist exists, check for changes
+      if (existingChecklist) {
+        const activityHistory = existingChecklist.activityHistory || [];
+        const changes = [];
+        
+        // Check if title changed
+        if (newChecklist.title !== existingChecklist.title) {
+          changes.push({ date: now, action: 'modified' });
+        }
+        
+        // Check if completed status changed
+        if (newChecklist.completed !== existingChecklist.completed) {
+          changes.push({ 
+            date: now, 
+            action: newChecklist.completed ? 'checked' : 'unchecked' 
+          });
+        }
+        
+        return {
+          ...newChecklist,
+          createdAt: existingChecklist.createdAt || now,
+          lastModified: changes.length > 0 ? now : existingChecklist.lastModified,
+          activityHistory: [...activityHistory, ...changes]
+        };
+      } else {
+        // New checklist item
+        return {
+          ...newChecklist,
+          createdAt: newChecklist.createdAt ? new Date(newChecklist.createdAt) : now,
+          lastModified: now,
+          activityHistory: [{
+            date: now,
+            action: 'created'
+          }]
+        };
+      }
+    });
+
     const updatedCard = await Card.findByIdAndUpdate(
       id,
       {
         title,
         priorityColor,
         priorityText,
-        checklists,
+        checklists: processedChecklists,
         dueDate,
         tag
       },
@@ -159,7 +216,53 @@ router.put('/updateChecklistItem/:cardId', authenticateToken, async (req, res) =
       return res.status(404).json({ error: 'Card not found or access denied' });
     }
 
-    const updatedCard = await Card.findByIdAndUpdate(cardId, { checklists: updatedChecklistItems }, { new: true });
+    // Process checklist items to track activity
+    const now = new Date();
+    const processedChecklists = updatedChecklistItems.map((newItem, index) => {
+      const existingItem = card.checklists[index];
+      
+      if (existingItem) {
+        const activityHistory = existingItem.activityHistory || [];
+        const changes = [];
+        
+        // Check if completed status changed
+        if (newItem.completed !== existingItem.completed) {
+          changes.push({ 
+            date: now, 
+            action: newItem.completed ? 'checked' : 'unchecked' 
+          });
+        }
+        
+        // Check if title changed
+        if (newItem.title !== existingItem.title) {
+          changes.push({ date: now, action: 'modified' });
+        }
+        
+        return {
+          ...newItem,
+          createdAt: existingItem.createdAt || now,
+          lastModified: changes.length > 0 ? now : existingItem.lastModified,
+          activityHistory: changes.length > 0 ? [...activityHistory, ...changes] : activityHistory
+        };
+      } else {
+        // New item (shouldn't happen in this route, but handle it)
+        return {
+          ...newItem,
+          createdAt: now,
+          lastModified: now,
+          activityHistory: [{
+            date: now,
+            action: 'created'
+          }]
+        };
+      }
+    });
+
+    const updatedCard = await Card.findByIdAndUpdate(
+      cardId, 
+      { checklists: processedChecklists }, 
+      { new: true }
+    );
 
     res.status(200).json({ message: 'Checklist items updated successfully', card: updatedCard });
   } catch (error) {

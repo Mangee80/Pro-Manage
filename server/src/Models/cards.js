@@ -11,6 +11,24 @@ const checklistSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  lastModified: {
+    type: Date,
+    default: Date.now,
+  },
+  activityHistory: [{
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    action: {
+      type: String,
+      enum: ['created', 'modified', 'checked', 'unchecked', 'deleted'],
+    },
+  }],
 });
 
 const cardSchema = new Schema({

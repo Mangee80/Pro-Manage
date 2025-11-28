@@ -4,6 +4,11 @@ A comprehensive full-stack project management application built with React and N
 
 ![Pro Manage](https://img.shields.io/badge/Status-Live-brightgreen) ![React](https://img.shields.io/badge/React-18.2.0-blue) ![Node.js](https://img.shields.io/badge/Node.js-Express-green) ![MongoDB](https://img.shields.io/badge/MongoDB-7.6.3-brightgreen)
 
+## 🚀 Live Demo
+
+- **Frontend**: [https://client-pi-jade.vercel.app](https://client-pi-jade.vercel.app)
+- **Backend API**: [https://pro-manage-one.vercel.app](https://pro-manage-one.vercel.app)
+
 ## ✨ Features
 
 ### 🎯 Task Management
@@ -13,37 +18,37 @@ A comprehensive full-stack project management application built with React and N
 - **Priority System**: Assign priority levels (High, Moderate, Low) with color coding
 - **Due Dates**: Set and track due dates with visual indicators for overdue tasks
 - **Card Sharing**: Share tasks with unique shareable links
+- **Drag & Drop**: Real-time updates when moving tasks between columns
 
 ### 📊 Analytics Dashboard
-- **Gantt Chart**: Visual timeline view of all tasks with due dates (60-day view)
-- **Task Status Distribution**: Pie chart showing distribution across all statuses
+- **Gantt Chart**: 60-day timeline view (past 14 days + future 46 days) with overdue task highlighting
+- **Task Status Distribution**: Interactive pie chart showing distribution across all statuses
 - **Priority Distribution**: Bar chart displaying task distribution by priority
 - **Summary Metrics**: 
   - Total Tasks count
   - Completed tasks with percentage
   - Pending tasks with percentage
   - Due Soon tasks (next 7 days)
-- **Real-time Updates**: Refresh analytics data in real-time
+- **Real-time Updates**: Refresh analytics data instantly
 
 ### 🔐 Authentication & Security
-- **User Authentication**: Secure JWT-based authentication system
-- **User Registration**: Sign up with email and password
-- **Protected Routes**: Secure API endpoints with authentication middleware
-- **User-specific Data**: Each user can only access their own tasks
+- JWT-based authentication system
+- Secure password hashing with bcrypt
+- Protected API routes with authentication middleware
+- User-specific data isolation
 
 ### 🎨 User Interface
-- **Modern UI**: Clean and intuitive design with responsive layout
-- **Color-coded Priorities**: Visual priority indicators
-- **Status-based Colors**: Different colors for different task statuses
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Toast Notifications**: User-friendly notifications for actions
+- Modern, clean, and intuitive design
+- Responsive layout for desktop and mobile devices
+- Color-coded priorities and status indicators
+- Toast notifications for user actions
 
 ## 🛠️ Tech Stack
 
 ### Frontend
 - **React** 18.2.0 - UI library
 - **React Router** 6.21.3 - Client-side routing
-- **Recharts** 3.1.2 - Data visualization (Charts)
+- **Recharts** 3.1.2 - Data visualization
 - **React Icons** 5.2.1 - Icon library
 - **React Toastify** 10.0.4 - Toast notifications
 - **Axios** 1.6.6 - HTTP client
@@ -62,19 +67,14 @@ A comprehensive full-stack project management application built with React and N
 - **Backend**: Vercel
 - **Database**: MongoDB Atlas
 
-## 🚀 Live Demo
-
-- **Frontend**: [https://client-pi-jade.vercel.app](https://client-pi-jade.vercel.app)
-- **Backend API**: [https://pro-manage-one.vercel.app](https://pro-manage-one.vercel.app)
-
-## 📦 Installation
+## 📦 Installation & Setup
 
 ### Prerequisites
 - Node.js (v16.x or higher)
 - MongoDB (local or MongoDB Atlas)
 - npm or yarn
 
-### Setup Instructions
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -82,20 +82,22 @@ A comprehensive full-stack project management application built with React and N
    cd pro-manage
    ```
 
-2. **Install Frontend Dependencies**
+2. **Install Dependencies**
+   
+   Frontend:
    ```bash
    cd client
    npm install
    ```
-
-3. **Install Backend Dependencies**
+   
+   Backend:
    ```bash
    cd ../server
    npm install
    ```
 
-4. **Environment Variables**
-
+3. **Configure Environment Variables**
+   
    Create a `.env` file in the `server` directory:
    ```env
    PORT=5000
@@ -103,20 +105,20 @@ A comprehensive full-stack project management application built with React and N
    JWT_SECRET=your_jwt_secret_key
    ```
 
-5. **Run the Application**
-
-   **Start Backend Server:**
+4. **Run the Application**
+   
+   Start Backend Server:
    ```bash
    cd server
    npm start
    ```
-
-   **Start Frontend (in a new terminal):**
+   
+   Start Frontend (in a new terminal):
    ```bash
    cd client
    npm start
    ```
-
+   
    The application will be available at:
    - Frontend: http://localhost:3000
    - Backend: http://localhost:5000
@@ -132,8 +134,7 @@ pro-manage/
 │   │   │   ├── Board/     # Kanban board
 │   │   │   ├── Card/      # Task card component
 │   │   │   ├── Dashboard/ # Main dashboard
-│   │   │   ├── Sidebar/   # Navigation sidebar
-│   │   │   └── ...
+│   │   │   └── Sidebar/   # Navigation sidebar
 │   │   ├── Pages/         # Page components
 │   │   ├── config/        # Configuration files
 │   │   └── utils/         # Utility functions
@@ -151,43 +152,13 @@ pro-manage/
 └── README.md
 ```
 
-## 🎯 Key Features in Detail
-
-### Kanban Board
-- Drag and organize tasks across different status columns
-- Real-time updates when moving tasks between columns
-- Visual indicators for task status and priority
-
-### Analytics Dashboard
-- **Gantt Chart**: 60-day timeline view showing all tasks with due dates
-  - Past 14 days and future 46 days visibility
-  - Overdue tasks highlighted in red
-  - Priority-based color coding
-- **Charts**: Interactive pie and bar charts for data visualization
-- **Metrics**: Quick overview cards with key statistics
-
-### Task Management
-- Create tasks with title, description, priority, and due date
-- Add multiple checklist items to each task
-- Edit and delete tasks
-- Share tasks with unique URLs
-- Track completion progress with checklist counters
-
-## 🔒 Security Features
+## 🔒 Security
 
 - JWT-based authentication
 - Password hashing with bcrypt
 - Protected API routes
 - User-specific data isolation
 - Secure environment variables
-
-## 📸 Screenshots
-
-<!-- Add your screenshots here -->
-- Dashboard View
-- Analytics Dashboard
-- Task Card Details
-- Gantt Chart Timeline
 
 ## 🚧 Future Enhancements
 
@@ -214,16 +185,7 @@ This project is licensed under the ISC License.
 **Mani Pratap Singh**
 
 - GitHub: [@Mangee80](https://github.com/Mangee80)
-- LinkedIn: [Your LinkedIn Profile]
-
-## 🙏 Acknowledgments
-
-- React team for the amazing framework
-- MongoDB for the database solution
-- Vercel for hosting services
-- All open-source contributors
 
 ---
 
 ⭐ If you like this project, please give it a star on GitHub!
-

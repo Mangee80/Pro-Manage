@@ -89,6 +89,7 @@ router.post('/createcards', authenticateToken, async (req, res) => {
       });
   
       // Create a new card object
+      const now = new Date();
       const newCard = new Card({
         title,
         priorityColor,
@@ -96,6 +97,11 @@ router.post('/createcards', authenticateToken, async (req, res) => {
         checklists: processedChecklists,
         dueDate,
         tag,
+        createdAt: now,
+        statusHistory: [{
+          status: tag || 'Todo',
+          date: now
+        }],
         createdBy // Link the card to the authenticated user
       });
   
@@ -121,7 +127,23 @@ router.put('/updatetag/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Card not found or access denied' });
     }
 
-    const updatedCard = await Card.findByIdAndUpdate(id, { tag }, { new: true });
+    // Track status change in history
+    const now = new Date();
+    const statusHistory = card.statusHistory || [];
+    
+    // Only add to history if status actually changed
+    if (card.tag !== tag) {
+      statusHistory.push({
+        status: tag,
+        date: now
+      });
+    }
+
+    const updatedCard = await Card.findByIdAndUpdate(
+      id, 
+      { tag, statusHistory }, 
+      { new: true }
+    );
     res.json(updatedCard);
   } catch (error) {
     console.error('Error updating card tag:', error);
@@ -184,6 +206,15 @@ router.put('/editcards/:id', authenticateToken, async (req, res) => {
       }
     });
 
+    // Track status change in history if tag changed
+    let statusHistory = card.statusHistory || [];
+    if (tag && card.tag !== tag) {
+      statusHistory.push({
+        status: tag,
+        date: now
+      });
+    }
+
     const updatedCard = await Card.findByIdAndUpdate(
       id,
       {
@@ -192,7 +223,8 @@ router.put('/editcards/:id', authenticateToken, async (req, res) => {
         priorityText,
         checklists: processedChecklists,
         dueDate,
-        tag
+        tag,
+        statusHistory
       },
       { new: true }
     );

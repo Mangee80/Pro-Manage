@@ -52,155 +52,132 @@ const ChartCard = ({ title, children, className = "" }) => (
   </div>
 );
 
-// Gantt Chart Component
+// Gantt Chart Component - Shows Card Status Timeline
 const GanttChartView = ({ cards }) => {
   // Safety check for cards prop
-  if (!cards || !Array.isArray(cards)) {
+  if (!cards || !Array.isArray(cards) || cards.length === 0) {
     return (
       <div className="gantt-empty-state">
-        <p>No checklists found</p>
-        <p className="gantt-empty-subtitle">Add checklists to your cards to see them on the timeline</p>
+        <p>No tasks found</p>
+        <p className="gantt-empty-subtitle">Create tasks to see them on the timeline</p>
       </div>
     );
   }
 
-  // Inactivity threshold in days (5 days as per user requirement)
-  const INACTIVITY_THRESHOLD_DAYS = 5;
+  // Status colors mapping
+  const statusColors = {
+    'Backlog': '#94A3B8',    // Gray
+    'Todo': '#FFCE56',       // Yellow
+    'In Progress': '#FF6384', // Pink/Red
+    'Done': '#10B981'        // Green
+  };
 
-  // Prepare checklist data with activity segments
-  const prepareChecklistGanttData = () => {
+  // Prepare card data with status timeline segments
+  const prepareCardGanttData = () => {
     const now = new Date();
-    const checklistData = [];
+    const cardData = [];
 
     cards.forEach(card => {
-      if (!card.checklists || card.checklists.length === 0) return;
+      // Get card creation date - handle backward compatibility
+      let createdAt;
+      if (card.createdAt) {
+        createdAt = new Date(card.createdAt);
+      } else if (card.statusHistory && card.statusHistory.length > 0) {
+        // Use first status history date as creation date
+        createdAt = new Date(card.statusHistory[0].date);
+      } else {
+        // Fallback: use current date (for very old cards)
+        createdAt = now;
+      }
 
-      card.checklists.forEach((checklist, checklistIndex) => {
-        // Parse creation date
-        const createdAt = checklist.createdAt 
-          ? new Date(checklist.createdAt) 
-          : (checklist.activityHistory && checklist.activityHistory.length > 0 
-              ? new Date(checklist.activityHistory[0].date) 
-              : now);
+      // Get status history, sorted by date
+      let statusHistory = card.statusHistory || [];
+      
+      // If no status history, create initial entry from creation with current tag
+      if (statusHistory.length === 0) {
+        statusHistory = [{
+          status: card.tag || 'Todo',
+          date: createdAt
+        }];
+      } else {
+        // Sort by date
+        statusHistory = [...statusHistory].sort((a, b) => 
+          new Date(a.date) - new Date(b.date)
+        );
         
-        // Get all activity dates from activity history
-        const activityDates = [];
-        if (checklist.activityHistory && checklist.activityHistory.length > 0) {
-          checklist.activityHistory.forEach(activity => {
-            activityDates.push(new Date(activity.date));
-          });
-        } else {
-          // If no activity history, use creation and lastModified dates
-          activityDates.push(createdAt);
-          if (checklist.lastModified) {
-            activityDates.push(new Date(checklist.lastModified));
-          }
-        }
-
-        // Sort activity dates
-        activityDates.sort((a, b) => a - b);
-
-        // Get last activity date
-        const lastModified = checklist.lastModified 
-          ? new Date(checklist.lastModified) 
-          : (activityDates.length > 0 ? activityDates[activityDates.length - 1] : createdAt);
-
-        // Detect activity segments and breaks
-        const segments = [];
-        const thresholdMillis = INACTIVITY_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
-        const recentActivityThreshold = new Date(now.getTime() - thresholdMillis);
-        
-        if (activityDates.length === 0) {
-          // No activity history - show from creation to now if created recently
-          const isRecentlyCreated = createdAt >= recentActivityThreshold;
-          if (isRecentlyCreated) {
-            segments.push({
-              startDate: createdAt,
-              endDate: now,
-              isActive: true
+        // Ensure first entry is from creation date
+        if (statusHistory.length > 0) {
+          const firstStatus = statusHistory[0];
+          const firstDate = new Date(firstStatus.date);
+          if (firstDate > createdAt) {
+            // Insert initial status at creation (use current tag or first status)
+            statusHistory.unshift({
+              status: card.tag || firstStatus.status || 'Todo',
+              date: createdAt
             });
-          }
-        } else {
-          // Build segments from activity dates
-          let currentSegmentStart = null;
-          let segmentEndDate = null;
-
-          for (let i = 0; i < activityDates.length; i++) {
-            const currentActivityDate = activityDates[i];
-            
-            if (currentSegmentStart === null) {
-              // Start of first segment
-              // If first activity is soon after creation, start from creation
-              const daysFromCreation = Math.ceil(
-                (currentActivityDate - createdAt) / (1000 * 60 * 60 * 24)
-              );
-              
-              if (daysFromCreation <= INACTIVITY_THRESHOLD_DAYS) {
-                currentSegmentStart = createdAt;
-              } else {
-                currentSegmentStart = currentActivityDate;
-              }
-              segmentEndDate = currentActivityDate;
-            } else {
-              // Check if this activity continues the current segment or starts a new one
-              const daysSinceLastActivity = Math.ceil(
-                (currentActivityDate - segmentEndDate) / (1000 * 60 * 60 * 24)
-              );
-
-              if (daysSinceLastActivity <= INACTIVITY_THRESHOLD_DAYS) {
-                // Continue current segment
-                segmentEndDate = currentActivityDate;
-              } else {
-                // Break detected - end current segment and start new one
-                segments.push({
-                  startDate: currentSegmentStart,
-                  endDate: segmentEndDate,
-                  isActive: true
-                });
-                currentSegmentStart = currentActivityDate;
-                segmentEndDate = currentActivityDate;
-              }
+          } else {
+            // Update first entry to use creation date
+            statusHistory[0].date = createdAt;
+            // Ensure first status matches creation (if not set)
+            if (!statusHistory[0].status) {
+              statusHistory[0].status = card.tag || 'Todo';
             }
           }
+        }
+      }
 
-          // Add final segment
-          if (currentSegmentStart !== null) {
-            const isRecentlyActive = lastModified >= recentActivityThreshold;
-            const finalEndDate = isRecentlyActive ? now : lastModified;
-            
-            segments.push({
-              startDate: currentSegmentStart,
-              endDate: finalEndDate,
-              isActive: isRecentlyActive
-            });
+      // Build status segments
+      const segments = [];
+      const isDone = card.tag === 'Done';
+      
+      for (let i = 0; i < statusHistory.length; i++) {
+        const currentStatus = statusHistory[i];
+        const startDate = new Date(currentStatus.date);
+        
+        // Determine end date
+        let endDate;
+        if (i < statusHistory.length - 1) {
+          // Next status change date
+          endDate = new Date(statusHistory[i + 1].date);
+        } else {
+          // Last status - if Done, end at that date (stop the line), otherwise continue to now
+          if (isDone && currentStatus.status === 'Done') {
+            // Task is done - stop the timeline at the date it was marked as Done
+            endDate = new Date(currentStatus.date);
+          } else {
+            // Task is still active - continue to now
+            endDate = now;
           }
         }
 
-        checklistData.push({
-          id: `${card._id}-${checklistIndex}`,
-          cardId: card._id,
-          cardTitle: card.title,
-          checklistTitle: checklist.title,
-          checklistIndex,
-          createdAt,
-          lastModified,
-          segments,
-          priorityColor: card.priorityColor,
-          priorityText: card.priorityText,
-          tag: card.tag,
-          completed: checklist.completed
+        segments.push({
+          status: currentStatus.status,
+          startDate,
+          endDate,
+          color: statusColors[currentStatus.status] || statusColors['Todo']
         });
+      }
+
+      cardData.push({
+        id: card._id,
+        cardTitle: card.title,
+        createdAt,
+        segments,
+        currentTag: card.tag,
+        priorityColor: card.priorityColor,
+        priorityText: card.priorityText,
+        isDone
       });
     });
 
     // Sort by creation date
-    return checklistData.sort((a, b) => a.createdAt - b.createdAt);
+    return cardData.sort((a, b) => a.createdAt - b.createdAt);
   };
 
-  const checklistData = prepareChecklistGanttData();
+  const cardData = prepareCardGanttData();
   const today = new Date();
   
-  // Calculate date range for display (90 days view for better visibility)
+  // Calculate date range for display (90 days view)
   const startViewDate = new Date(today);
   startViewDate.setDate(startViewDate.getDate() - 30);
   const endViewDate = new Date(today);
@@ -222,11 +199,11 @@ const GanttChartView = ({ cards }) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  if (checklistData.length === 0) {
+  if (cardData.length === 0) {
     return (
       <div className="gantt-empty-state">
-        <p>No checklists found</p>
-        <p className="gantt-empty-subtitle">Add checklists to your cards to see them on the timeline</p>
+        <p>No tasks found</p>
+        <p className="gantt-empty-subtitle">Create tasks to see them on the timeline</p>
       </div>
     );
   }
@@ -235,7 +212,7 @@ const GanttChartView = ({ cards }) => {
     <div className="gantt-container">
       <div className="gantt-header">
         <div className="gantt-task-column">
-          <span>Checklist</span>
+          <span>Task</span>
         </div>
         <div className="gantt-timeline-column">
           {/* Date labels - More detailed */}
@@ -272,25 +249,21 @@ const GanttChartView = ({ cards }) => {
         </div>
       </div>
       <div className="gantt-body">
-        {checklistData.map((item, index) => {
+        {cardData.map((item, index) => {
           return (
             <div key={item.id || index} className="gantt-row">
               <div className="gantt-task-name">
                 <div className="gantt-task-priority" style={{ backgroundColor: item.priorityColor }} />
-                <span className="gantt-task-title" title={`${item.cardTitle} - ${item.checklistTitle}`}>
-                  {item.cardTitle.length > 20 
-                    ? `${item.cardTitle.substring(0, 20)}...` 
+                <span className="gantt-task-title" title={item.cardTitle}>
+                  {item.cardTitle.length > 30 
+                    ? `${item.cardTitle.substring(0, 30)}...` 
                     : item.cardTitle}
-                  {': '}
-                  {item.checklistTitle.length > 15 
-                    ? `${item.checklistTitle.substring(0, 15)}...` 
-                    : item.checklistTitle}
                 </span>
               </div>
               <div className="gantt-bar-container">
                 {item.segments
                   .filter(segment => {
-                    // Filter out zero-width segments (they represent breaks)
+                    // Filter out zero-width segments
                     const width = getBarWidth(segment.startDate, segment.endDate);
                     return width > 0.1; // Minimum width threshold
                   })
@@ -298,20 +271,18 @@ const GanttChartView = ({ cards }) => {
                     const leftPos = getDatePosition(segment.startDate);
                     const width = getBarWidth(segment.startDate, segment.endDate);
                     const isPast = segment.endDate < today;
-                    const isActive = segment.isActive && !isPast;
+                    const isDone = segment.status === 'Done';
                     
                     return (
                       <div
                         key={segIndex}
-                        className={`gantt-bar-segment ${isActive ? 'active' : 'inactive'} ${isPast ? 'past' : ''} ${item.completed ? 'completed' : ''}`}
+                        className={`gantt-bar-segment ${isDone ? 'completed' : 'active'} ${isPast ? 'past' : ''}`}
                         style={{
                           left: `${Math.max(0, leftPos)}%`,
                           width: `${Math.max(2, width)}%`,
-                          backgroundColor: item.completed 
-                            ? '#10B981' 
-                            : (isActive ? item.priorityColor || '#3b82f6' : '#cbd5e1')
+                          backgroundColor: segment.color
                         }}
-                        title={`${item.checklistTitle} - ${formatDateLabel(segment.startDate)} to ${formatDateLabel(segment.endDate)} ${segment.isActive ? '(Active)' : '(Inactive/Break)'}`}
+                        title={`${item.cardTitle} - ${segment.status} (${formatDateLabel(segment.startDate)} to ${formatDateLabel(segment.endDate)})`}
                       />
                     );
                   })}
@@ -336,10 +307,7 @@ const Analytics = () => {
 
   const fetchCardsForGantt = async () => {
     try {
-      const userID = localStorage.getItem('userID');
-      if (!userID) return;
-
-      const response = await apiRequest(`${getApiUrl('api/card/getcards')}?userID=${userID}`, {
+      const response = await apiRequest(getApiUrl('api/card/getcards'), {
         method: 'GET'
       });
 
@@ -347,11 +315,8 @@ const Analytics = () => {
         const { boards } = await response.json();
         // Flatten all cards from all boards
         const allCards = boards.flatMap(board => board.cards || []);
-        // Filter cards with checklists (since we're showing checklist timelines)
-        const cardsWithChecklists = allCards.filter(card => 
-          card.checklists && card.checklists.length > 0
-        );
-        setCardsData(cardsWithChecklists);
+        // Get all cards (not just ones with checklists) for status timeline
+        setCardsData(allCards);
       }
     } catch (error) {
       console.error('Error fetching cards for Gantt:', error);
@@ -488,7 +453,7 @@ const Analytics = () => {
         {/* Left - Main Content - Gantt Chart */}
         <div className="analytics-main-content">
           <div className="gantt-section">
-            <ChartCard title="Checklist Activity Timeline (Gantt Chart)" className="gantt-chart-card-compact">
+            <ChartCard title="Task Status Timeline (Gantt Chart)" className="gantt-chart-card-compact">
               <GanttChartView cards={cardsData} />
             </ChartCard>
           </div>
@@ -594,35 +559,37 @@ const Analytics = () => {
             </ResponsiveContainer>
           </ChartCard>
 
-          {/* Summary Cards */}
-          <SummaryCard
-            title="Total Tasks"
-            value={totalTasks}
-            icon={GoProject}
-            color="#246BFD"
-            subtitle="All created tasks"
-          />
-          <SummaryCard
-            title="Completed"
-            value={analyticsData.completedTasks || 0}
-            icon={GoCheckCircle}
-            color="#10B981"
-            subtitle={`${completedPercentage}% of total`}
-          />
-          <SummaryCard
-            title="Pending"
-            value={(analyticsData.backlogTasks || 0) + (analyticsData.todoTasks || 0) + (analyticsData.inProgressTasks || 0)}
-            icon={GoClock}
-            color="#F59E0B"
-            subtitle={`${pendingPercentage}% of total`}
-          />
-          <SummaryCard
-            title="Due Soon"
-            value={dueSoonCount}
-            icon={GoAlert}
-            color="#EF4444"
-            subtitle="Next 7 days"
-          />
+          {/* Summary Cards - Arranged in pairs */}
+          <div className="summary-cards-grid">
+            <SummaryCard
+              title="Total Tasks"
+              value={totalTasks}
+              icon={GoProject}
+              color="#246BFD"
+              subtitle="All created tasks"
+            />
+            <SummaryCard
+              title="Completed"
+              value={analyticsData.completedTasks || 0}
+              icon={GoCheckCircle}
+              color="#10B981"
+              subtitle={`${completedPercentage}% of total`}
+            />
+            <SummaryCard
+              title="Pending"
+              value={(analyticsData.backlogTasks || 0) + (analyticsData.todoTasks || 0) + (analyticsData.inProgressTasks || 0)}
+              icon={GoClock}
+              color="#F59E0B"
+              subtitle={`${pendingPercentage}% of total`}
+            />
+            <SummaryCard
+              title="Due Soon"
+              value={dueSoonCount}
+              icon={GoAlert}
+              color="#EF4444"
+              subtitle="Next 7 days"
+            />
+          </div>
         </div>
       </div>
     </div>

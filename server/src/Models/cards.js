@@ -53,6 +53,20 @@ const cardSchema = new Schema({
     enum: ['Todo', 'In Progress', 'Done', 'Backlog'],
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['Todo', 'In Progress', 'Done', 'Backlog'],
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+  }],
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model

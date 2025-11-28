@@ -98,6 +98,14 @@
   min-width: 0;
 }
 
+/* Summary Cards Grid - 2x2 layout */
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
 .summary-card-compact {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 12px;
@@ -109,6 +117,8 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .summary-card-compact:hover {
@@ -472,6 +482,11 @@
     flex-wrap: wrap;
     overflow: visible;
     max-height: none;
+  }
+  
+  .summary-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
   }
   
   .summary-card-compact {

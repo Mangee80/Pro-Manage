@@ -6,6 +6,8 @@ import { apiRequest } from '../../utils/authUtils';
 
 function Dashboard() {
   const [boards, setBoards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Fetch cards from backend when the component mounts
@@ -15,6 +17,9 @@ function Dashboard() {
   
   const fetchUserCards = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      
       // Retrieve userID from localStorage
       const userID = localStorage.getItem('userID');
       
@@ -29,13 +34,17 @@ function Dashboard() {
       });
   
       if (!response.ok) {
-        throw new Error('Failed to fetch user cards');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch user cards: ${response.status}`);
       }
   
       const { boards } = await response.json();
-      setBoards(boards);
+      setBoards(boards || []);
     } catch (error) {
       console.error('Error fetching user cards:', error);
+      setError(error.message || 'Failed to load board data. Please refresh the page.');
+    } finally {
+      setLoading(false);
     }
   };
   const userName = localStorage.getItem('user');
@@ -56,14 +65,46 @@ function Dashboard() {
       </div>
       <div className="dashboard-container">
         <div className="dashboard-content">
-          <div className="dashboard">
-            {/* Render boards dynamically */}
-            {boards.map((board, index) => (
-              <div key={index}>
-                <Board title={board.title} cards={board.cards} />
-              </div>
-            ))}
-          </div>
+          {loading && (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <p>Loading board...</p>
+            </div>
+          )}
+          {error && (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>
+              <p style={{ marginBottom: '10px' }}>Error: {error}</p>
+              <button 
+                onClick={fetchUserCards} 
+                style={{ 
+                  marginTop: '10px', 
+                  padding: '10px 20px',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+          {!loading && !error && (
+            <div className="dashboard">
+              {/* Render boards dynamically */}
+              {boards && boards.length > 0 ? (
+                boards.map((board, index) => (
+                  <div key={index}>
+                    <Board title={board.title} cards={board.cards || []} />
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <p>No tasks yet. Create your first task to get started!</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

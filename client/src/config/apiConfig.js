@@ -15,8 +15,7 @@ const getApiBaseUrl = () => {
   // 2. Check if we're running on Vercel (production deployment)
   const isVercelProduction = typeof window !== 'undefined' && 
     (window.location.hostname.includes('vercel.app') || 
-     window.location.hostname.includes('vercel.com') ||
-     window.location.hostname === 'client-pi-jade.vercel.app');
+     window.location.hostname.includes('vercel.com'));
   
   // Use production URL if either condition is true
   const useProduction = isProductionBuild || isVercelProduction;

@@ -35,11 +35,25 @@ function Dashboard() {
   
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to fetch user cards: ${response.status}`);
+        const errorMessage = errorData.error || errorData.message || `Failed to fetch user cards: ${response.status}`;
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        throw new Error(errorMessage);
       }
   
-      const { boards } = await response.json();
-      setBoards(boards || []);
+      const responseData = await response.json();
+      const { boards } = responseData;
+      
+      if (!boards || !Array.isArray(boards)) {
+        console.warn('Invalid boards data received:', responseData);
+        setBoards([]);
+        return;
+      }
+      
+      setBoards(boards);
     } catch (error) {
       console.error('Error fetching user cards:', error);
       setError(error.message || 'Failed to load board data. Please refresh the page.');

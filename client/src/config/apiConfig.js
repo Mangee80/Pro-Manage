@@ -2,17 +2,26 @@
 // Automatically detects environment and uses appropriate base URL
 
 const getApiBaseUrl = () => {
-  // Check if we're in production mode (build)
-  const isProduction = process.env.NODE_ENV === 'production';
-  
   // Production URL
   const PRODUCTION_URL = 'https://pro-manage-one.vercel.app';
   
   // Development URL (local)
   const DEVELOPMENT_URL = 'http://localhost:5000';
   
-  // Return appropriate URL based on environment
-  return isProduction ? PRODUCTION_URL : DEVELOPMENT_URL;
+  // Check multiple conditions for production
+  // 1. Check if we're in production mode (build)
+  const isProductionBuild = process.env.NODE_ENV === 'production';
+  
+  // 2. Check if we're running on Vercel (production deployment)
+  const isVercelProduction = typeof window !== 'undefined' && 
+    (window.location.hostname.includes('vercel.app') || 
+     window.location.hostname.includes('vercel.com') ||
+     window.location.hostname === 'client-pi-jade.vercel.app');
+  
+  // Use production URL if either condition is true
+  const useProduction = isProductionBuild || isVercelProduction;
+  
+  return useProduction ? PRODUCTION_URL : DEVELOPMENT_URL;
 };
 
 // Export the API base URL

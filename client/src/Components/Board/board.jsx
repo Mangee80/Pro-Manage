@@ -60,7 +60,15 @@ function Board({ title, cards }) {
       
       {/* Render form using Portal outside the board */}
       {isTodoBoard && isFormOpen && createPortal(
-        <CreateNewCardForm cardData='null' onCancel={() => setIsFormOpen(false)} />,
+        <CreateNewCardForm 
+          cardData={null} 
+          onCancel={() => setIsFormOpen(false)} 
+          onSuccess={() => {
+            setIsFormOpen(false);
+            // Optionally refresh the board data here instead of reloading page
+            window.location.reload();
+          }}
+        />,
         document.body
       )}
     </>

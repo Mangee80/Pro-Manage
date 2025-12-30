@@ -315,10 +315,21 @@ button {
   box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
 }
 
-.createbtn:hover {
+.createbtn:hover:not(:disabled) {
   background: linear-gradient(135deg, #A0522D, #654321);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+}
+
+.createbtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancelbtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .cancelbtn {

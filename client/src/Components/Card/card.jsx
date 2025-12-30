@@ -8,6 +8,7 @@ import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
 import { SlArrowDown } from "react-icons/sl";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getApiUrl } from '../../config/apiConfig';
+import { apiRequest } from '../../utils/authUtils';
 const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
   const [checklistItems, setChecklistItems] = useState(card.checklists);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -59,11 +60,8 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
     // Update backend here
     try {
-      const response = await fetch(getApiUrl(`api/card/updateChecklistItem/${card._id}`), {
+      const response = await apiRequest(getApiUrl(`api/card/updateChecklistItem/${card._id}`), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ checklistItems: updatedChecklistItems }),
       });
       if (!response.ok) {
@@ -88,11 +86,8 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleBoardChipClick = async (newTag) => {
         try {
-          const response = await fetch(getApiUrl(`api/card/updatetag/${card._id}`), {
+          const response = await apiRequest(getApiUrl(`api/card/updatetag/${card._id}`), {
             method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
             body: JSON.stringify({ tag: newTag }),
           });
           if (!response.ok) {
@@ -107,11 +102,8 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   const handleDelete = () => {
     // request to delete the card from the database
-    fetch(getApiUrl(`api/card/deleteCard/${card._id}`), {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+    apiRequest(getApiUrl(`api/card/deleteCard/${card._id}`), {
+      method: 'DELETE'
     })
       .then((response) => {
         if (response.ok) {
@@ -242,7 +234,15 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
     
     {/* Render edit form using Portal outside the card */}
     {isEditing && createPortal(
-      <CreateNewCardForm cardData={card} onCancel={() => setIsEditing(false)} />,
+      <CreateNewCardForm 
+        cardData={card} 
+        onCancel={() => setIsEditing(false)}
+        onSuccess={() => {
+          setIsEditing(false);
+          // Reload to show updated card
+          window.location.reload();
+        }}
+      />,
       document.body
     )}
   </>

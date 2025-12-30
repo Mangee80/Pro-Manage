@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import DatePicker from 'react-datepicker';
 import './CreateNewCardForm.css';
 import del from '../../assets/icons/delete.png';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getApiUrl } from '../../config/apiConfig';
+import { getAccessToken, getUserInfo } from '../../utils/authUtils';
 
 function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChecklistItem, handleInputChange, error }) {
   const [isChecked, setIsChecked] = useState(item.completed);
@@ -30,31 +31,89 @@ function ChecklistItem({ item, index, handleToggleChecklistItem, handleDeleteChe
   );
 }
 
-export const CreateNewCardForm = ({ cardData, onCancel }) => {
-  const [formData, setFormData] = useState({
-    title: cardData.title || '',
-    priorityColor: cardData.priorityColor || '',
-    priorityText: cardData.priorityText || '',
-    checklists: cardData.checklists || [],
-    dueDate: cardData.dueDate ? new Date(cardData.dueDate) : null,
-    tag: cardData.tag || 'Todo',
-  });
+export const CreateNewCardForm = ({ cardData = {}, onCancel, onSuccess }) => {
+  // Helper function to parse due date string (format: "DD MMM" or "DD MMM YYYY")
+  const parseDueDate = (dueDateString) => {
+    if (!dueDateString) return null;
+    
+    try {
+      // If it's already a Date object or ISO string
+      if (dueDateString instanceof Date) {
+        return dueDateString;
+      }
+      
+      // Parse string format like "15 Jan" or "15 Jan 2024"
+      const parts = dueDateString.trim().split(' ');
+      if (parts.length < 2) return null;
+      
+      const day = parseInt(parts[0]);
+      if (isNaN(day)) return null;
+      
+      const monthMap = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+      };
+      
+      const month = monthMap[parts[1]];
+      if (month === undefined) return null;
+      
+      const year = parts[2] ? parseInt(parts[2]) : new Date().getFullYear();
+      const parsedDate = new Date(year, month, day);
+      
+      // Validate the date
+      if (isNaN(parsedDate.getTime())) return null;
+      
+      return parsedDate;
+    } catch (error) {
+      console.error('Error parsing due date:', error);
+      return null;
+    }
+  };
+
+  // Initialize form data properly - handle null/undefined cardData
+  const initialFormData = {
+    title: cardData?.title || '',
+    priorityColor: cardData?.priorityColor || '',
+    priorityText: cardData?.priorityText || '',
+    checklists: cardData?.checklists || [],
+    dueDate: parseDueDate(cardData?.dueDate),
+    tag: cardData?.tag || 'Todo',
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
   const [showCalendar, setShowCalendar] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formRef = useRef(null);
 
+  // Memoize onCancel to prevent unnecessary re-renders
+  const handleCancel = useCallback(() => {
+    if (onCancel) onCancel();
+  }, [onCancel]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (formRef.current && !formRef.current.contains(event.target)) {
-        onCancel();
+      // Ignore clicks inside the form
+      if (formRef.current && formRef.current.contains(event.target)) {
+        return;
       }
+
+      // Ignore clicks inside the calendar portal so that picking a date
+      // does NOT close the whole form
+      const isInsideCalendar = event.target.closest('.calendar-portal-container');
+      if (isInsideCalendar) {
+        return;
+      }
+
+      handleCancel();
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onCancel]);
+  }, [handleCancel]);
 
 
   const handleChange = (e) => {
@@ -138,6 +197,8 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (isSubmitting) return; // Prevent double submission
+    
     // Validation
     const newErrors = {};
     
@@ -149,15 +210,20 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
       newErrors.priorityColor = 'Please select a priority';
     }
     
-    // Check if any checklist items are empty
+    // Filter out empty checklist items and validate remaining ones
+    const validChecklists = formData.checklists.filter(item => item.title && item.title.trim() !== '');
     const emptyChecklistItems = [];
-    formData.checklists.forEach((item, index) => {
-      if (!item.title || item.title.trim() === '') {
-        emptyChecklistItems[index] = 'Checklist item cannot be empty';
+    
+    // Only validate if there are checklist items
+    if (formData.checklists.length > 0) {
+      formData.checklists.forEach((item, index) => {
+        if (!item.title || item.title.trim() === '') {
+          emptyChecklistItems[index] = 'Checklist item cannot be empty';
+        }
+      });
+      if (emptyChecklistItems.length > 0) {
+        newErrors.checklists = emptyChecklistItems;
       }
-    });
-    if (emptyChecklistItems.length > 0) {
-      newErrors.checklists = emptyChecklistItems;
     }
     
     if (Object.keys(newErrors).length > 0) {
@@ -166,58 +232,94 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
     }
     
     setErrors({});
+    setIsSubmitting(true);
     
     try {
-      const formattedDueDate = formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : null;
+      // Format due date properly
+      const formattedDueDate = formData.dueDate 
+        ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) 
+        : null;
 
-      const userID = localStorage.getItem('userID');
+      // Get authentication token
+      const token = getAccessToken();
+      const userInfo = getUserInfo();
+      const userID = userInfo?.userId || userInfo?.id || localStorage.getItem('userID');
+
+      if (!token) {
+        throw new Error('Authentication required. Please login again.');
+      }
+
       const headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Prepare request body with filtered checklists
+      const requestBody = {
+        ...formData,
+        checklists: validChecklists, // Use filtered checklists
+        dueDate: formattedDueDate
       };
 
       let response;
-      if (cardData._id) {
+      const isEditMode = cardData?._id;
+
+      if (isEditMode) {
+        requestBody._id = cardData._id;
         response = await fetch(getApiUrl(`api/card/editcards/${cardData._id}`), {
           method: 'PUT',
           headers: headers,
-          body: JSON.stringify({
-            ...formData,
-            _id: cardData._id,  // Make sure to include the _id field for update
-            dueDate: formattedDueDate
-          })
+          body: JSON.stringify(requestBody)
         });
       } else {
+        requestBody.createdBy = userID;
         response = await fetch(getApiUrl('api/card/createcards'), {
           method: 'POST',
           headers: headers,
-          body: JSON.stringify({
-            ...formData,
-            dueDate: formattedDueDate,
-            createdBy: userID
-          })
+          body: JSON.stringify(requestBody)
         });
       }
 
       if (!response.ok) {
-        throw new Error('Error creating new card');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error ${isEditMode ? 'updating' : 'creating'} card`);
       }
 
       const responseData = await response.json();
-      console.log('New card created:', responseData);
-      setFormData({
-        title: '',
-        priorityColor: '',
-        priorityText: '',
-        checklists: [],
-        dueDate: null,
-        tag: 'Todo',
-      });
+      console.log(`Card ${isEditMode ? 'updated' : 'created'}:`, responseData);
+      
+      // Reset form only if creating new card
+      if (!isEditMode) {
+        setFormData({
+          title: '',
+          priorityColor: '',
+          priorityText: '',
+          checklists: [],
+          dueDate: null,
+          tag: 'Todo',
+        });
+      }
+      
       setErrors({});
-      onCancel(); // Close the form
-      window.location.reload(); // Reload the page
+      
+      // Call success callback if provided, otherwise just close
+      if (onSuccess) {
+        onSuccess(responseData);
+      }
+      
+      handleCancel(); // Close the form
+      
+      // Only reload if no callback provided (for backward compatibility)
+      if (!onSuccess) {
+        window.location.reload();
+      }
     } catch (error) {
-      console.error('Error creating new card:', error);
-      setErrors({ submit: 'Error creating new card. Please try again.' });
+      console.error(`Error ${cardData?._id ? 'updating' : 'creating'} card:`, error);
+      setErrors({ 
+        submit: error.message || `Error ${cardData?._id ? 'updating' : 'creating'} card. Please try again.` 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -229,7 +331,7 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
 
   return (
     <>
-      <div className="modal-backdrop" onClick={onCancel}></div>
+      <div className="modal-backdrop" onClick={handleCancel}></div>
       <form onSubmit={handleSubmit} className="form_Container" ref={formRef}>
         <div className="form-content-wrapper">
           <div style={{display:'flex', flexDirection:'column'}}>
@@ -284,7 +386,9 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
                 </div>
               ))}
             </div>
-            <div className='addChecklist' onClick={handleAddChecklistItem}><span style={{fontSize: '23px'}}>+</span> Add New</div>
+            <div className='addChecklist' onClick={handleAddChecklistItem}>
+              <span style={{fontSize: '23px'}}>+</span> Add New
+            </div>
           </div>
 
           {errors.submit && <div className="error" style={{marginTop: '20px'}}>{errors.submit}</div>}
@@ -296,12 +400,28 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
             {formData.dueDate ? formData.dueDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Due Date'}
           </div>
           <div style={{display: 'flex', gap: '10px'}}>
-            <button className="cancelbtn" type="button" onClick={onCancel}>Cancel</button>
-            <button className="createbtn" type="submit">{cardData._id ? 'Edit Card' : 'Create Card'}</button>
+            <button 
+              className="cancelbtn" 
+              type="button" 
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button 
+              className="createbtn" 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting 
+                ? (cardData?._id ? 'Updating...' : 'Creating...') 
+                : (cardData?._id ? 'Update Card' : 'Create Card')
+              }
+            </button>
           </div>
         </div>
       
-        {showCalendar && ReactDOM.createPortal(
+        {showCalendar && createPortal(
           <div className="calendar-backdrop" onClick={() => setShowCalendar(false)}>
             <div className="calendar-portal-container" onClick={(e) => e.stopPropagation()}>
               <DatePicker
@@ -311,6 +431,9 @@ export const CreateNewCardForm = ({ cardData, onCancel }) => {
                   setShowCalendar(false);
                 }}
                 inline
+                // Allow past dates in edit mode, but prevent for new cards
+                minDate={cardData?._id ? null : new Date()}
+                dateFormat="dd MMM yyyy"
               />
             </div>
           </div>,

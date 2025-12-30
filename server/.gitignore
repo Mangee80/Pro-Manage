@@ -29,3 +29,4 @@ Thumbs.db
 *.gz
 *.tar
 *.tar.gz
+.vercel

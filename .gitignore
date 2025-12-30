@@ -41,4 +41,8 @@ coverage/
 *.pem
 .cache/
 
+# Documentation - Don't push README files to GitHub
+README.md
+**/README.md
+**/*README.md
 

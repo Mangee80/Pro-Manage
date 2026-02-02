@@ -150,12 +150,39 @@ const GanttChartView = ({ cards }) => {
           }
         }
 
+        // Calculate duration in days (ensure non-negative)
+        const durationMs = endDate - startDate;
+        const durationDays = durationMs > 0 ? Math.ceil(durationMs / (1000 * 60 * 60 * 24)) : 0;
+        
+        // Check if this is a bottleneck (stuck for more than 7 days in non-Done status)
+        // Only mark as bottleneck if:
+        // 1. Duration > 7 days
+        // 2. Status is not Done
+        // 3. Task is not Done (current tag)
+        // 4. This is the last segment (current status) OR it's a past segment that was stuck
+        const isLastSegment = i === statusHistory.length - 1;
+        const isBottleneck = durationDays > 7 && 
+                            currentStatus.status !== 'Done' && 
+                            !isDone &&
+                            (isLastSegment || endDate < now);
+        
         segments.push({
           status: currentStatus.status,
           startDate,
           endDate,
+          durationDays,
+          isBottleneck,
           color: statusColors[currentStatus.status] || statusColors['Todo']
         });
+      }
+
+      // Calculate current status duration (for active tasks)
+      let currentStatusDuration = 0;
+      let isStuck = false;
+      if (segments.length > 0 && !isDone) {
+        const lastSegment = segments[segments.length - 1];
+        currentStatusDuration = lastSegment.durationDays;
+        isStuck = lastSegment.isBottleneck;
       }
 
       cardData.push({
@@ -166,7 +193,9 @@ const GanttChartView = ({ cards }) => {
         currentTag: card.tag,
         priorityColor: card.priorityColor,
         priorityText: card.priorityText,
-        isDone
+        isDone,
+        currentStatusDuration,
+        isStuck
       });
     });
 
@@ -177,6 +206,16 @@ const GanttChartView = ({ cards }) => {
   const cardData = prepareCardGanttData();
   const today = new Date();
   
+  // Calculate bottleneck statistics
+  const bottleneckStats = {
+    totalBottlenecks: cardData.filter(card => card.isStuck).length,
+    stuckInProgress: cardData.filter(card => card.isStuck && card.currentTag === 'In Progress').length,
+    stuckInTodo: cardData.filter(card => card.isStuck && card.currentTag === 'Todo').length,
+    averageDuration: cardData.length > 0 
+      ? Math.round(cardData.reduce((sum, card) => sum + (card.currentStatusDuration || 0), 0) / cardData.length)
+      : 0
+  };
+  
   // Calculate date range for display (90 days view)
   const startViewDate = new Date(today);
   startViewDate.setDate(startViewDate.getDate() - 30);
@@ -186,13 +225,19 @@ const GanttChartView = ({ cards }) => {
   const daysInView = 90;
 
   const getDatePosition = (date) => {
-    const diffDays = Math.ceil((date - startViewDate) / (1000 * 60 * 60 * 24));
-    return (diffDays / daysInView) * 100;
+    const diffMs = date - startViewDate;
+    const diffDays = diffMs > 0 ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : 0;
+    const percentage = (diffDays / daysInView) * 100;
+    // Clamp between 0 and 100 to prevent overflow
+    return Math.max(0, Math.min(100, percentage));
   };
 
   const getBarWidth = (startDate, endDate) => {
-    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-    return (days / daysInView) * 100;
+    const diffMs = endDate - startDate;
+    const days = diffMs > 0 ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : 0;
+    const percentage = (days / daysInView) * 100;
+    // Clamp to prevent negative or excessive widths
+    return Math.max(0, Math.min(100, percentage));
   };
 
   const formatDateLabel = (date) => {
@@ -210,6 +255,31 @@ const GanttChartView = ({ cards }) => {
 
   return (
     <div className="gantt-container">
+      {/* Bottleneck Summary */}
+      {bottleneckStats.totalBottlenecks > 0 && (
+        <div className="gantt-bottleneck-summary">
+          <div className="bottleneck-summary-item">
+            <span className="bottleneck-label">⚠ Bottlenecks:</span>
+            <span className="bottleneck-value">{bottleneckStats.totalBottlenecks}</span>
+          </div>
+          {bottleneckStats.stuckInProgress > 0 && (
+            <div className="bottleneck-summary-item">
+              <span className="bottleneck-label">In Progress:</span>
+              <span className="bottleneck-value">{bottleneckStats.stuckInProgress}</span>
+            </div>
+          )}
+          {bottleneckStats.stuckInTodo > 0 && (
+            <div className="bottleneck-summary-item">
+              <span className="bottleneck-label">Todo:</span>
+              <span className="bottleneck-value">{bottleneckStats.stuckInTodo}</span>
+            </div>
+          )}
+          <div className="bottleneck-summary-item">
+            <span className="bottleneck-label">Avg Duration:</span>
+            <span className="bottleneck-value">{bottleneckStats.averageDuration}d</span>
+          </div>
+        </div>
+      )}
       <div className="gantt-header">
         <div className="gantt-task-column">
           <span>Task</span>
@@ -259,6 +329,12 @@ const GanttChartView = ({ cards }) => {
                     ? `${item.cardTitle.substring(0, 30)}...` 
                     : item.cardTitle}
                 </span>
+                {!item.isDone && item.currentStatusDuration > 0 && (
+                  <span className={`gantt-duration-badge ${item.isStuck ? 'stuck' : ''}`} title={`${item.currentStatusDuration} days in ${item.currentTag}`}>
+                    {item.currentStatusDuration}d
+                    {item.isStuck && <span className="stuck-indicator">⚠</span>}
+                  </span>
+                )}
               </div>
               <div className="gantt-bar-container">
                 {item.segments
@@ -273,16 +349,30 @@ const GanttChartView = ({ cards }) => {
                     const isPast = segment.endDate < today;
                     const isDone = segment.status === 'Done';
                     
+                    // Enhanced tooltip with duration
+                    const tooltipText = `${item.cardTitle}\n` +
+                      `Status: ${segment.status}\n` +
+                      `Duration: ${segment.durationDays} day${segment.durationDays !== 1 ? 's' : ''}\n` +
+                      `From: ${formatDateLabel(segment.startDate)}\n` +
+                      `To: ${formatDateLabel(segment.endDate)}` +
+                      (segment.isBottleneck ? '\n⚠ Bottleneck: Stuck for 7+ days' : '');
+                    
+                    // Ensure valid positioning
+                    const safeLeftPos = Math.max(0, Math.min(100, leftPos));
+                    const safeWidth = Math.max(0.5, Math.min(100, width));
+                    
                     return (
                       <div
                         key={segIndex}
-                        className={`gantt-bar-segment ${isDone ? 'completed' : 'active'} ${isPast ? 'past' : ''}`}
+                        className={`gantt-bar-segment ${isDone ? 'completed' : 'active'} ${isPast ? 'past' : ''} ${segment.isBottleneck ? 'bottleneck' : ''}`}
                         style={{
-                          left: `${Math.max(0, leftPos)}%`,
-                          width: `${Math.max(2, width)}%`,
-                          backgroundColor: segment.color
+                          left: `${safeLeftPos}%`,
+                          width: `${safeWidth}%`,
+                          backgroundColor: segment.color,
+                          border: segment.isBottleneck ? '2px solid #EF4444' : 'none',
+                          boxShadow: segment.isBottleneck ? '0 0 8px rgba(239, 68, 68, 0.5)' : undefined
                         }}
-                        title={`${item.cardTitle} - ${segment.status} (${formatDateLabel(segment.startDate)} to ${formatDateLabel(segment.endDate)})`}
+                        title={tooltipText}
                       />
                     );
                   })}

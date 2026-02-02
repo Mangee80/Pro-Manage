@@ -1,5 +1,6 @@
 .board {
     width: 322px; /* Minimum width for each board */
+    min-width: 322px; /* Prevent shrinking */
     height: calc(79vh - 20px);
     max-height: calc(85vh - 20px);
     overflow-y: auto;
@@ -15,6 +16,7 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     /* Ensure board doesn't create stacking context that affects modal */
     contain: layout style;
+    flex-shrink: 0; /* Prevent boards from shrinking */
 }
 
 /* Backlog Board - Purple/Gray */

@@ -137,8 +137,29 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
     
 
 
-    const isDone = card.tag === "Done";
-    const dueDateChipColor = isDone ? 'rgba(99, 192, 91, 1)' : (isDueDateExpired ? 'rgba(207, 54, 54, 1)' : 'skyblue');
+    // Set due date chip color based on board/tag color
+    const getDueDateChipColor = () => {
+      // If expired, show red for all boards
+      if (isDueDateExpired) {
+        return 'rgba(207, 54, 54, 1)';
+      }
+      
+      // Match chip color with board color
+      switch (card.tag) {
+        case 'Backlog':
+          return 'rgba(139, 92, 246, 1)'; // Purple
+        case 'Todo':
+          return 'rgba(59, 130, 246, 1)'; // Blue
+        case 'In Progress':
+          return 'rgba(251, 146, 60, 1)'; // Orange
+        case 'Done':
+          return 'rgba(34, 197, 94, 1)'; // Green
+        default:
+          return 'skyblue';
+      }
+    };
+    
+    const dueDateChipColor = getDueDateChipColor();
     const MAX_TITLE_LENGTH = 10; // You can adjust this value as needed
     const MAX_CHECKLIST_ITEM_LENGTH = 20; // You can adjust this value as needed
 
@@ -208,10 +229,10 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
       </ul>
 
 
-      <div style={{display: 'flex', justifyContent: "space-between", alignItems: "center", marginTop: '30px'}}>
+      <div className="card-footer">
         
           {/* Render due date chip */}
-          <div className="dueDateChip" style={{ backgroundColor: dueDateChipColor }}>{card.dueDate}</div>
+          <div className="dueDateChip" style={{ backgroundColor: dueDateChipColor }}>{card.dueDate || ''}</div>
 
           {/* Render board chips */}
           <div className="board-chips">

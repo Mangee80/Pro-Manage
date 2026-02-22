@@ -6,7 +6,7 @@
 
 **Transform your workflow with the most intuitive Kanban board experience! 🎯**
 
-[🌐 Live Demo](https://client-pi-jade.vercel.app) • [📖 Documentation](#-features) • [💻 Tech Stack](#️-tech-stack) • [🚀 Quick Start](#-quick-start)
+[🌐 Live Demo](https://promanage-xi.vercel.app) • [📖 Documentation](#features) • [💻 Tech Stack](#tech-stack) • [🚀 Quick Start](#quick-start)
 
 ---
 
@@ -34,7 +34,7 @@
 
 </div>
 
-## ✨ Features That Will Blow Your Mind! 
+## ✨ Features That Will Blow Your Mind! {#features} 
 
 ### 🎯 Task Management - Your Productivity Superpower
 
@@ -80,7 +80,7 @@
 - 🌈 **Color-Coded** - Visual indicators make navigation intuitive
 - 🔔 **Smart Notifications** - Toast notifications keep you informed without being annoying
 
-## 🛠️ Built With Modern Tech Stack
+## 🛠️ Built With Modern Tech Stack {#tech-stack}
 
 <div align="center">
 
@@ -160,7 +160,7 @@ chmod +x deploy.sh && ./deploy.sh  # Linux/Mac
 
 ---
 
-## 📦 Installation & Setup - Get Started in 5 Minutes! ⏱️
+## 📦 Installation & Setup - Get Started in 5 Minutes! ⏱️ {#quick-start}
 
 ### ✅ Prerequisites
 

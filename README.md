@@ -34,7 +34,8 @@
 
 </div>
 
-## ✨ Features That Will Blow Your Mind! {#features} 
+<a id="features"></a>
+## ✨ Features That Will Blow Your Mind! 
 
 ### 🎯 Task Management - Your Productivity Superpower
 
@@ -80,7 +81,8 @@
 - 🌈 **Color-Coded** - Visual indicators make navigation intuitive
 - 🔔 **Smart Notifications** - Toast notifications keep you informed without being annoying
 
-## 🛠️ Built With Modern Tech Stack {#tech-stack}
+<a id="tech-stack"></a>
+## 🛠️ Built With Modern Tech Stack
 
 <div align="center">
 
@@ -160,7 +162,8 @@ chmod +x deploy.sh && ./deploy.sh  # Linux/Mac
 
 ---
 
-## 📦 Installation & Setup - Get Started in 5 Minutes! ⏱️ {#quick-start}
+<a id="quick-start"></a>
+## 📦 Installation & Setup - Get Started in 5 Minutes! ⏱️
 
 ### ✅ Prerequisites
 

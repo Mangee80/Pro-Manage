@@ -6,7 +6,7 @@ A comprehensive full-stack project management application built with React and N
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://client-pi-jade.vercel.app](https://client-pi-jade.vercel.app)
+- **Frontend**: [https://promanage-xi.vercel.app/](https://promanage-xi.vercel.app/)
 - **Backend API**: [https://pro-manage-one.vercel.app](https://pro-manage-one.vercel.app)
 
 ## ✨ Features

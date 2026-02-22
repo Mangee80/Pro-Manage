@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import './card.css';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SlArrowUp } from "react-icons/sl";
-import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'
+import { CreateNewCardForm } from '../Cardform/CreateNewCardFom';
 import { SlArrowDown } from "react-icons/sl";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { getApiUrl } from '../../config/apiConfig';
@@ -76,13 +75,11 @@ const Card = ({ card, isChecklistOpen, toggleChecklist }) => {
 
   // Update totalCompleted whenever the card prop changes
   useEffect(() => {
-    // Calculate the total number of completed checklist items
     const completedCount = card.checklists.reduce((acc, checklist) => {
       return acc + (checklist.completed ? 1 : 0);
     }, 0);
-    // Update the state with the new count
     setTotalCompleted(completedCount);
-  }, [handleCheckboxChange]);
+  }, [card.checklists]);
 
   const handleBoardChipClick = async (newTag) => {
         try {

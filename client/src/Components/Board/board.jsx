@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom';
 import './board.css';
 import Card from '../Card/card';
 import { CreateNewCardForm } from '../Cardform/CreateNewCardFom'; // Import CreateNewCardForm
-import codesandbox from '../../assets/icons/codesandbox.png';
-
 import collapse_all from '../../assets/icons/collapse_all.svg';
 
 function Board({ title, cards }) {
@@ -45,7 +43,7 @@ function Board({ title, cards }) {
           
           {/* Button to collapse all checklists */}
           <div className='img_container' onClick={collapseAllChecklists}>
-            <img src={collapse_all}/>
+            <img src={collapse_all} alt="Collapse all checklists" />
           </div>
         </div>
 

@@ -6,6 +6,7 @@
   width: 100%;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   overflow: hidden;
+  overflow-x: hidden;
   box-sizing: border-box;
 }
 
@@ -68,10 +69,11 @@
 /* Content Wrapper */
 .analytics-content-wrapper {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 16px;
   height: calc(100vh - 120px);
   overflow: hidden;
+  overflow-x: hidden;
   width: 100%;
   max-width: 100%;
 }
@@ -82,6 +84,7 @@
   flex-direction: column;
   gap: 16px;
   overflow-y: hidden;
+  overflow-x: hidden;
   width: 100%;
   min-width: 0;
   min-height: 0;
@@ -94,6 +97,7 @@
   flex-direction: column;
   gap: 10px;
   overflow-y: hidden;
+  overflow-x: hidden;
   padding-right: 4px;
   max-height: calc(100vh - 120px);
   width: 100%;
@@ -284,6 +288,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .chart-card-compact {
@@ -324,15 +329,15 @@
 
 /* Chart cards in sidebar should have fixed heights */
 .summary-cards-sidebar .pie-chart-card-compact {
-  height: 280px;
-  min-height: 280px;
-  max-height: 280px;
+  height: 260px;
+  min-height: 260px;
+  max-height: 260px;
 }
 
 .summary-cards-sidebar .bar-chart-card-compact {
-  height: 200px;
-  min-height: 200px;
-  max-height: 200px;
+  height: 190px;
+  min-height: 190px;
+  max-height: 190px;
 }
 
 /* Chart Legend - Compact */
@@ -462,13 +467,13 @@
 /* Responsive Design */
 @media (max-width: 1400px) {
   .analytics-content-wrapper {
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: minmax(0, 1fr) 300px;
   }
 }
 
 @media (max-width: 1200px) {
   .analytics-content-wrapper {
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: minmax(0, 1fr) 270px;
   }
   
   .charts-row {
@@ -546,16 +551,19 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
+  overflow-x: hidden;
   isolation: isolate;
 }
 
 .gantt-chart-card-compact.chart-card-compact {
-  overflow: visible;
+  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .gantt-chart-card-compact .chart-card-content-compact {
-  overflow: visible;
+  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .gantt-bottleneck-summary {
@@ -594,7 +602,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
+  overflow-x: hidden;
   min-width: 0;
   max-width: 100%;
 }
@@ -886,6 +895,8 @@
   padding: 10px 12px;
   margin-bottom: 24px;
   overflow: visible;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .gantt-legend-left {
@@ -893,6 +904,8 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .gantt-legend-item {
@@ -988,6 +1001,8 @@
   border: 1px solid #dbe3ee;
   border-radius: 999px;
   box-shadow: inset 0 1px 1px rgba(148, 163, 184, 0.18);
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .gantt-range-btn {
@@ -1157,6 +1172,11 @@
   padding: 2px 0;
   min-width: 0;
   max-width: 100%;
+}
+
+.gantt-header > *,
+.gantt-row > * {
+  min-width: 0;
 }
 
 .gantt-row:hover {

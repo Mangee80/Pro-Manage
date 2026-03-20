@@ -56,21 +56,24 @@ const getBarWidth = (startDate, endDate, daysInView) => {
 };
 
 const formatDateLabel = (date) => date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const formatDateHeaderLabel = (date) => date.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+const formatMonthLabel = (date) => date.toLocaleDateString("en-US", { month: "short" });
 
-const ZoomControls = ({ zoomDays, onChange }) => (
-  <div className="gantt-zoom-controls">
-    {[30, 60, 90].map((value) => (
-      <button
-        type="button"
-        key={value}
-        className={`gantt-zoom-btn ${zoomDays === value ? "active" : ""}`}
-        onClick={() => onChange(value)}
-      >
-        {value}d
-      </button>
-    ))}
-  </div>
-);
+const LEGEND_INFO = {
+  Backlog: "Backlog means planned work that is not started yet.",
+  Todo: "Todo means ready tasks that should be picked up next.",
+  "In Progress": "In Progress means tasks currently being worked on.",
+  Done: "Done means tasks that are completed and closed.",
+  Bottleneck: "Bottleneck highlights tasks stuck in active status for more than 7 days.",
+};
+
+const METRIC_INFO = {
+  stuck: "Tasks currently active for more than the bottleneck threshold. These need first attention.",
+  aging: "Average days active tasks have spent in their current status. Higher means flow is slowing.",
+  cycle: "Average days from task creation to completion. Lower cycle time means faster delivery.",
+  throughput: "Number of tasks completed in the last 7 days. Higher throughput means better execution pace.",
+  threshold: "Current rule for flagging a bottleneck. Active tasks above this age are highlighted.",
+};
 
 const FlowMetricStrip = ({ metrics, bottleneckDays }) => {
   if (!metrics) return null;
@@ -79,43 +82,68 @@ const FlowMetricStrip = ({ metrics, bottleneckDays }) => {
       <div className="gantt-metric-item">
         <span className="gantt-metric-label">Stuck Tasks</span>
         <span className="gantt-metric-value">{metrics.stuckCount}</span>
+        <div className="metric-tooltip">{METRIC_INFO.stuck}</div>
       </div>
       <div className="gantt-metric-item">
         <span className="gantt-metric-label">Avg Aging WIP</span>
         <span className="gantt-metric-value">{metrics.avgAgingWipDays}d</span>
+        <div className="metric-tooltip">{METRIC_INFO.aging}</div>
       </div>
       <div className="gantt-metric-item">
         <span className="gantt-metric-label">Avg Cycle Time</span>
         <span className="gantt-metric-value">{metrics.avgCycleTimeDays}d</span>
+        <div className="metric-tooltip">{METRIC_INFO.cycle}</div>
       </div>
       <div className="gantt-metric-item">
         <span className="gantt-metric-label">Throughput (7d)</span>
         <span className="gantt-metric-value">{metrics.throughput7d}</span>
+        <div className="metric-tooltip">{METRIC_INFO.throughput}</div>
       </div>
       <div className="gantt-metric-item">
         <span className="gantt-metric-label">Bottleneck Rule</span>
         <span className="gantt-metric-value">&gt; {bottleneckDays}d</span>
+        <div className="metric-tooltip">{METRIC_INFO.threshold}</div>
       </div>
     </div>
   );
 };
 
-const GanttDefinitions = ({ bottleneckDays }) => (
-  <div className="gantt-definitions">
-    <div className="gantt-definition"><strong>Cycle Time:</strong> Created to Done.</div>
-    <div className="gantt-definition"><strong>Lead Time:</strong> Backlog to Done (or Created to Done).</div>
-    <div className="gantt-definition"><strong>Aging WIP:</strong> Days in current active status.</div>
-    <div className="gantt-definition"><strong>Bottleneck:</strong> Active status older than {bottleneckDays} days.</div>
-  </div>
-);
-
-const GanttLegend = ({ bottleneckDays }) => (
+const GanttLegend = ({ bottleneckDays, zoomDays, onZoomChange }) => (
   <div className="gantt-legend-sticky">
-    <div className="gantt-legend-item"><span className="legend-color-dot backlog" />Backlog</div>
-    <div className="gantt-legend-item"><span className="legend-color-dot todo" />Todo</div>
-    <div className="gantt-legend-item"><span className="legend-color-dot progress" />In Progress</div>
-    <div className="gantt-legend-item"><span className="legend-color-dot done" />Done</div>
-    <div className="gantt-legend-item"><span className="legend-color-dot bottleneck" />Bottleneck (&gt;{bottleneckDays}d)</div>
+    <div className="gantt-legend-left">
+      <div className="gantt-legend-item">
+        <span className="legend-color-dot backlog" />Backlog
+        <div className="legend-hover-card">{LEGEND_INFO.Backlog}</div>
+      </div>
+      <div className="gantt-legend-item">
+        <span className="legend-color-dot todo" />Todo
+        <div className="legend-hover-card">{LEGEND_INFO.Todo}</div>
+      </div>
+      <div className="gantt-legend-item">
+        <span className="legend-color-dot progress" />In Progress
+        <div className="legend-hover-card">{LEGEND_INFO["In Progress"]}</div>
+      </div>
+      <div className="gantt-legend-item">
+        <span className="legend-color-dot done" />Done
+        <div className="legend-hover-card">{LEGEND_INFO.Done}</div>
+      </div>
+      <div className="gantt-legend-item">
+        <span className="legend-color-dot bottleneck" />Bottleneck (&gt;{bottleneckDays}d)
+        <div className="legend-hover-card">{LEGEND_INFO.Bottleneck}</div>
+      </div>
+    </div>
+    <div className="gantt-range-switch">
+      {[30, 60, 90].map((value) => (
+        <button
+          type="button"
+          key={value}
+          className={`gantt-range-btn ${zoomDays === value ? "active" : ""}`}
+          onClick={() => onZoomChange(value)}
+        >
+          {value}d
+        </button>
+      ))}
+    </div>
   </div>
 );
 
@@ -139,30 +167,46 @@ const GanttChartView = ({ timelineItems, flowMetrics, zoomDays, onZoomChange, bo
   const endViewDate = new Date(today);
   endViewDate.setDate(endViewDate.getDate() + futureDays);
   const daysInView = zoomDays;
+  const dayStep = zoomDays <= 30 ? 3 : zoomDays <= 60 ? 5 : 7;
+  const dateTicks = Array.from({ length: Math.ceil(daysInView / dayStep) + 1 }).map((_, i) => {
+    const date = new Date(startViewDate);
+    date.setDate(date.getDate() + i * dayStep);
+    return {
+      key: `tick-${i}`,
+      date,
+      left: `${(i * dayStep * 100) / daysInView}%`,
+      isMajor: date.getDate() <= dayStep || i === 0,
+    };
+  });
 
   return (
     <div className="gantt-container">
       <FlowMetricStrip metrics={flowMetrics} bottleneckDays={bottleneckDays} />
-      <div className="gantt-toolbar">
-        <GanttDefinitions bottleneckDays={bottleneckDays} />
-        <ZoomControls zoomDays={zoomDays} onChange={onZoomChange} />
-      </div>
-      <GanttLegend bottleneckDays={bottleneckDays} />
+      <GanttLegend bottleneckDays={bottleneckDays} zoomDays={zoomDays} onZoomChange={onZoomChange} />
       <div className="gantt-header">
         <div className="gantt-task-column">
           <span>Task</span>
         </div>
         <div className="gantt-timeline-column">
-          <div className="gantt-dates-row">
-            {Array.from({ length: Math.ceil(daysInView / 5) + 1 }).map((_, i) => {
-              const date = new Date(startViewDate);
-              date.setDate(date.getDate() + i * 5);
-              return (
-                <div key={i} className="gantt-date-label" style={{ left: `${(i * 5 * 100) / daysInView}%` }}>
-                  {formatDateLabel(date)}
+          <div className="gantt-month-row">
+            {dateTicks
+              .filter((tick) => tick.isMajor)
+              .map((tick) => (
+                <div key={`month-${tick.key}`} className="gantt-month-label" style={{ left: tick.left }}>
+                  {formatMonthLabel(tick.date)}
                 </div>
-              );
-            })}
+              ))}
+          </div>
+          <div className="gantt-dates-row">
+            {dateTicks.map((tick) => (
+              <div
+                key={tick.key}
+                className={`gantt-date-label ${tick.isMajor ? "major" : "minor"}`}
+                style={{ left: tick.left }}
+              >
+                {formatDateHeaderLabel(tick.date)}
+              </div>
+            ))}
           </div>
           <div className="gantt-week-markers">
             {Array.from({ length: Math.ceil(daysInView / 7) }).map((_, i) => (
@@ -366,21 +410,25 @@ const Analytics = () => {
     { name: "Completed", value: analyticsData?.completedTasks || 0, color: "#4BC0C0" },
   ];
 
-  const priorityData = [
-    { name: "Low", value: analyticsData?.lowPriorityTasks || 0, color: "#4BC0C0" },
-    { name: "Moderate", value: analyticsData?.moderatePriorityTasks || 0, color: "#FFCE56" },
-    { name: "High", value: analyticsData?.highPriorityTasks || 0, color: "#FF6384" },
-  ];
+  const priorityData = useMemo(() => {
+    const counts = { low: 0, medium: 0, high: 0 };
+    cardsData.forEach((card) => {
+      const text = (card.priorityText || "").toLowerCase();
+      if (text.includes("high")) counts.high += 1;
+      else if (text.includes("medium") || text.includes("moderate")) counts.medium += 1;
+      else if (text.includes("low")) counts.low += 1;
+    });
 
-  const rootCauseHint = useMemo(() => {
-    if (!flowMetrics) return "No flow signals yet.";
-    const entries = Object.entries(flowMetrics.stuckByStatus || {}).sort((a, b) => b[1] - a[1]);
-    const [topStatus, count] = entries[0] || [];
-    if (!topStatus || count === 0) {
-      return "No active bottlenecks right now. Keep monitoring weekly throughput.";
-    }
-    return `${topStatus} is the biggest blocker with ${count} stuck task${count > 1 ? "s" : ""}. Focus WIP cleanup there first.`;
-  }, [flowMetrics]);
+    const fallbackLow = analyticsData?.lowPriorityTasks || 0;
+    const fallbackMedium = analyticsData?.moderatePriorityTasks || 0;
+    const fallbackHigh = analyticsData?.highPriorityTasks || 0;
+
+    return [
+      { name: "Low", value: cardsData.length > 0 ? counts.low : fallbackLow, color: "#4BC0C0" },
+      { name: "Medium", value: cardsData.length > 0 ? counts.medium : fallbackMedium, color: "#FFCE56" },
+      { name: "High", value: cardsData.length > 0 ? counts.high : fallbackHigh, color: "#FF6384" },
+    ];
+  }, [cardsData, analyticsData]);
 
   if (loading) {
     return (
@@ -422,9 +470,6 @@ const Analytics = () => {
 
       <div className="analytics-content-wrapper">
         <div className="analytics-main-content">
-          <ChartCard title="Flow Health Summary" className="flow-health-card">
-            <div className="flow-health-hint">{rootCauseHint}</div>
-          </ChartCard>
           <div className="gantt-section">
             <ChartCard title="Task Flow Timeline (Gantt)" className="gantt-chart-card-compact">
               <GanttChartView

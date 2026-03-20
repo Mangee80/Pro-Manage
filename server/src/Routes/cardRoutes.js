@@ -52,7 +52,10 @@ router.get('/analytics', authenticateToken, async (req, res) => {
     const backlogTasks = await Card.countDocuments({ createdBy: userId, tag: 'Backlog' });
     const lowPriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'Low Priority' });
     const todoTasks = await Card.countDocuments({ createdBy: userId, tag: 'Todo' });
-    const moderatePriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'Moderate Priority' });
+    const moderatePriorityTasks = await Card.countDocuments({
+      createdBy: userId,
+      priorityText: { $in: ['Moderate Priority', 'Medium Priority'] }
+    });
     const inProgressTasks = await Card.countDocuments({ createdBy: userId, tag: 'In Progress' });
     const highPriorityTasks = await Card.countDocuments({ createdBy: userId, priorityText: 'High Priority' });
     const completedTasks = await Card.countDocuments({ createdBy: userId, tag: 'Done' });

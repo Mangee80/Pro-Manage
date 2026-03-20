@@ -3,6 +3,44 @@ const router = express.Router();
 const Card = require('../Models/cards');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
+const DAY_MS = 1000 * 60 * 60 * 24;
+const BOTTLENECK_DAYS = 7;
+
+const diffInDays = (start, end) => {
+  if (!start || !end) return 0;
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const ms = endDate - startDate;
+  if (ms <= 0) return 0;
+  return Math.ceil(ms / DAY_MS);
+};
+
+const normalizeHistory = (card, createdAt) => {
+  const history = Array.isArray(card.statusHistory) ? [...card.statusHistory] : [];
+  if (history.length === 0) {
+    return [{ status: card.tag || 'Todo', date: createdAt }];
+  }
+
+  const sorted = history
+    .map((entry) => ({
+      status: entry.status || card.tag || 'Todo',
+      date: new Date(entry.date),
+    }))
+    .filter((entry) => !Number.isNaN(entry.date.getTime()))
+    .sort((a, b) => a.date - b.date);
+
+  if (sorted.length === 0) {
+    return [{ status: card.tag || 'Todo', date: createdAt }];
+  }
+
+  if (sorted[0].date > createdAt) {
+    sorted.unshift({ status: sorted[0].status, date: createdAt });
+  } else {
+    sorted[0].date = createdAt;
+  }
+  return sorted;
+};
+
 // Route to retrieve cards associated with the logged-in user
 router.get('/analytics', authenticateToken, async (req, res) => {
   try {
@@ -35,6 +73,85 @@ router.get('/analytics', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching analytics data:', error);
     res.status(500).json({ error: 'Error fetching analytics data' });
+  }
+});
+
+router.get('/flow-metrics', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const cards = await Card.find({ createdBy: userId });
+    const now = new Date();
+
+    const metrics = {
+      stuckCount: 0,
+      avgAgingWipDays: 0,
+      avgCycleTimeDays: 0,
+      throughput7d: 0,
+      stuckByStatus: {
+        Backlog: 0,
+        Todo: 0,
+        'In Progress': 0,
+      },
+      bottleneckDays: BOTTLENECK_DAYS,
+    };
+
+    if (cards.length === 0) {
+      return res.json(metrics);
+    }
+
+    let activeCount = 0;
+    let completedCount = 0;
+    let totalActiveAging = 0;
+    let totalCycleTime = 0;
+
+    cards.forEach((card) => {
+      const createdAt = card.createdAt ? new Date(card.createdAt) : now;
+      const history = normalizeHistory(card, createdAt);
+      const isDone = card.tag === 'Done';
+      let doneDate = null;
+      let currentSegmentDuration = 0;
+
+      for (let i = 0; i < history.length; i += 1) {
+        const current = history[i];
+        const next = history[i + 1];
+        const startDate = current.date;
+        const endDate = next ? next.date : isDone && current.status === 'Done' ? startDate : now;
+        const durationDays = diffInDays(startDate, endDate);
+
+        if (current.status === 'Done') {
+          doneDate = endDate;
+        }
+
+        const isLastSegment = i === history.length - 1;
+        if (!isDone && isLastSegment) {
+          currentSegmentDuration = durationDays;
+          totalActiveAging += currentSegmentDuration;
+          activeCount += 1;
+          if (durationDays > BOTTLENECK_DAYS && current.status !== 'Done') {
+            metrics.stuckCount += 1;
+            if (metrics.stuckByStatus[current.status] !== undefined) {
+              metrics.stuckByStatus[current.status] += 1;
+            }
+          }
+        }
+      }
+
+      if (doneDate) {
+        completedCount += 1;
+        totalCycleTime += diffInDays(createdAt, doneDate);
+        if (diffInDays(doneDate, now) <= 7) {
+          metrics.throughput7d += 1;
+        }
+      }
+    });
+
+    metrics.avgAgingWipDays = activeCount > 0 ? Math.round(totalActiveAging / activeCount) : 0;
+    metrics.avgCycleTimeDays = completedCount > 0 ? Math.round(totalCycleTime / completedCount) : 0;
+
+    return res.json(metrics);
+  } catch (error) {
+    console.error('Error fetching flow metrics:', error);
+    return res.status(500).json({ error: 'Error fetching flow metrics' });
   }
 });
 

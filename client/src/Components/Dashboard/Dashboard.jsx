@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css'; // Import CSS file for Dashboard styles
-import Board from '../Board/Board';
+import Board from '../Board/board';
 import { getApiUrl } from '../../config/apiConfig';
 import { apiRequest } from '../../utils/authUtils';
 

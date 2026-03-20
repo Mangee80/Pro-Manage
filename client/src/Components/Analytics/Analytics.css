@@ -81,9 +81,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow: hidden;
+  overflow-y: auto;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  padding-right: 4px;
 }
 
 /* Right Side - Summary Cards Sidebar */
@@ -279,7 +281,7 @@
 /* Bottom - Gantt Section */
 .gantt-section {
   flex: 1;
-  min-height: 0;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
 }
@@ -536,9 +538,10 @@
 .gantt-chart-card-compact {
   width: 100%;
   height: 100%;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .gantt-bottleneck-summary {
@@ -574,9 +577,152 @@
 .gantt-container {
   width: 100%;
   height: 100%;
+  min-height: 460px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.flow-health-card {
+  min-height: 86px;
+}
+
+.flow-health-hint {
+  font-size: 14px;
+  line-height: 1.45;
+  color: #1e293b;
+  background: linear-gradient(135deg, rgba(36, 107, 253, 0.08), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(36, 107, 253, 0.18);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.gantt-metric-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.gantt-metric-item {
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gantt-metric-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.gantt-metric-value {
+  font-size: 15px;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.gantt-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.gantt-definitions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  align-content: center;
+}
+
+.gantt-definition {
+  font-size: 11px;
+  color: #475569;
+}
+
+.gantt-zoom-controls {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.gantt-zoom-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.gantt-zoom-btn.active {
+  border-color: #246bfd;
+  color: #246bfd;
+  background: #eff6ff;
+}
+
+.gantt-legend-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.gantt-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.legend-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-color-dot.backlog {
+  background: #94a3b8;
+}
+
+.legend-color-dot.todo {
+  background: #ffce56;
+}
+
+.legend-color-dot.progress {
+  background: #ff6384;
+}
+
+.legend-color-dot.done {
+  background: #10b981;
+}
+
+.legend-color-dot.bottleneck {
+  background: #ef4444;
+}
+
+.gantt-view-window {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #64748b;
+  text-align: right;
 }
 
 .gantt-header {
@@ -656,10 +802,10 @@
 
 .gantt-body {
   flex: 1;
+  min-height: 280px;
   overflow-y: auto;
   overflow-x: auto;
   padding-right: 4px;
-  min-height: 0;
 }
 
 .gantt-row {
@@ -912,5 +1058,17 @@
   .gantt-bar {
     height: 24px;
     font-size: 9px;
+  }
+
+  .gantt-metric-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gantt-toolbar {
+    flex-direction: column;
+  }
+
+  .gantt-definitions {
+    grid-template-columns: 1fr;
   }
 }

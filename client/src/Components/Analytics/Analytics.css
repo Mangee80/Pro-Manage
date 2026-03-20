@@ -81,7 +81,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto;
+  overflow-y: hidden;
   width: 100%;
   min-width: 0;
   min-height: 0;
@@ -92,8 +92,8 @@
 .summary-cards-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
+  gap: 10px;
+  overflow-y: hidden;
   padding-right: 4px;
   max-height: calc(100vh - 120px);
   width: 100%;
@@ -281,7 +281,7 @@
 /* Bottom - Gantt Section */
 .gantt-section {
   flex: 1;
-  min-height: 520px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -323,19 +323,24 @@
 }
 
 /* Chart cards in sidebar should have fixed heights */
-.summary-cards-sidebar .pie-chart-card-compact,
-.summary-cards-sidebar .bar-chart-card-compact {
+.summary-cards-sidebar .pie-chart-card-compact {
   height: 280px;
   min-height: 280px;
   max-height: 280px;
+}
+
+.summary-cards-sidebar .bar-chart-card-compact {
+  height: 200px;
+  min-height: 200px;
+  max-height: 200px;
 }
 
 /* Chart Legend - Compact */
 .chart-legend-compact {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 8px;
   justify-content: center;
 }
 
@@ -538,9 +543,18 @@
 .gantt-chart-card-compact {
   width: 100%;
   height: 100%;
-  min-height: 520px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.gantt-chart-card-compact.chart-card-compact {
+  overflow: visible;
+}
+
+.gantt-chart-card-compact .chart-card-content-compact {
   overflow: visible;
 }
 
@@ -577,10 +591,12 @@
 .gantt-container {
   width: 100%;
   height: 100%;
-  min-height: 460px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: visible;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .flow-health-card {
@@ -603,11 +619,12 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 26px;
 }
 
 .gantt-metric-item {
   position: relative;
+  z-index: 120;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -639,39 +656,133 @@
 .metric-tooltip {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 14px);
-  transform: translateX(-50%) translateY(6px);
-  width: 300px;
-  padding: 14px 16px;
+  top: calc(100% + 10px);
+  bottom: auto;
+  transform: translateX(-50%) translateY(8px) scale(0.98);
+  width: 240px;
+  padding: 12px 14px;
   border-radius: 14px;
-  background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  color: #f8fafc;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 42%),
+    linear-gradient(140deg, #0b1220 0%, #111f33 60%, #172a46 100%);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  color: #e6eefc;
+  font-family: "Manrope", "Inter", "Segoe UI", sans-serif;
   font-size: 13px;
-  line-height: 1.55;
-  font-weight: 500;
-  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(8px);
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+  font-weight: 600;
+  box-shadow:
+    0 12px 24px rgba(2, 6, 23, 0.45),
+    0 0 0 1px rgba(125, 211, 252, 0.14) inset;
+  backdrop-filter: blur(10px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  z-index: 60;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  /* Sticky headers ke upar fully dikhna chahiye. */
+  z-index: 100000;
 }
 
 .metric-tooltip::after {
   content: "";
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   margin-left: -7px;
   border-width: 7px;
   border-style: solid;
-  border-color: #1e293b transparent transparent transparent;
+  border-color: transparent transparent #172a46 transparent;
 }
 
 .gantt-metric-item:hover .metric-tooltip {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Custom portal tooltip (metrics hover) */
+.metric-tooltip-portal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  max-width: 280px;
+  width: max-content;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 42%),
+    linear-gradient(140deg, #0b1220 0%, #111f33 60%, #172a46 100%);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  color: #e6eefc;
+  font-family: "Manrope", "Inter", "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.15px;
+  font-weight: 600;
+  box-shadow:
+    0 18px 35px rgba(2, 6, 23, 0.5),
+    0 0 0 1px rgba(125, 211, 252, 0.14) inset;
+  backdrop-filter: blur(10px);
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.metric-tooltip-portal {
+  transform: translateX(-50%);
+}
+
+.metric-tooltip-portal.bottom::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: transparent transparent #172a46 transparent;
+}
+
+.metric-tooltip-portal.top::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: #172a46 transparent transparent transparent;
+}
+
+.metric-tooltip-portal.bottom {
+  transform: translateX(-50%);
+  animation: metricTooltipInBottom 0.2s ease-out;
+}
+
+.metric-tooltip-portal.top {
+  transform: translateX(-50%) translateY(-100%);
+  animation: metricTooltipInTop 0.2s ease-out;
+}
+
+@keyframes metricTooltipInBottom {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes metricTooltipInTop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(calc(-100% + 6px)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-100%) scale(1);
+  }
 }
 
 .gantt-toolbar {
@@ -764,7 +875,7 @@
 .gantt-legend-sticky {
   position: sticky;
   top: 0;
-  z-index: 80;
+  z-index: 200;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -773,7 +884,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 10px 12px;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
   overflow: visible;
 }
 
@@ -786,6 +897,7 @@
 
 .gantt-legend-item {
   position: relative;
+  z-index: 220;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -825,7 +937,8 @@
 .legend-hover-card {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 12px);
+  top: calc(100% + 12px);
+  bottom: auto;
   transform: translateX(-50%) translateY(8px);
   min-width: 240px;
   max-width: 280px;
@@ -840,24 +953,30 @@
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.45);
   opacity: 0;
   pointer-events: none;
-  z-index: 999;
+  z-index: 6000;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Legend pe hover-tooltip ki zarurat nahi hai (remove as requested). */
+.legend-hover-card {
+  display: none !important;
 }
 
 .legend-hover-card::after {
   content: "";
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   margin-left: -6px;
   border-width: 6px;
   border-style: solid;
-  border-color: #1e293b transparent transparent transparent;
+  border-color: transparent transparent #1e293b transparent;
 }
 
 .gantt-legend-item:hover .legend-hover-card {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
 
 .gantt-range-switch {
@@ -908,6 +1027,9 @@
   margin-bottom: 6px;
   padding-bottom: 6px;
   position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .gantt-task-column {
@@ -921,12 +1043,16 @@
 .gantt-timeline-column {
   position: relative;
   min-height: 54px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .gantt-month-row {
   position: relative;
   height: 18px;
   margin-bottom: 2px;
+  overflow: hidden;
 }
 
 .gantt-month-label {
@@ -943,6 +1069,7 @@
   height: 34px;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+  overflow: hidden;
 }
 
 .gantt-date-label {
@@ -1011,10 +1138,12 @@
 
 .gantt-body {
   flex: 1;
-  min-height: 280px;
-  overflow-y: auto;
-  overflow-x: auto;
+  min-height: 0;
+  overflow-y: hidden;
+  overflow-x: hidden;
   padding-right: 4px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .gantt-row {
@@ -1026,6 +1155,8 @@
   transition: all 0.2s ease;
   border-radius: 6px;
   padding: 2px 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .gantt-row:hover {
@@ -1097,8 +1228,10 @@
   height: 32px;
   background: linear-gradient(to right, #f8fafc 0%, #ffffff 100%);
   border-radius: 6px;
-  overflow: visible;
+  overflow: hidden;
   border: 1px solid rgba(226, 232, 240, 0.5);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .gantt-bar {

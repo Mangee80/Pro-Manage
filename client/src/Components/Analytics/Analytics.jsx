@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import "./Analytics.css";
 import { apiRequest } from "../../utils/authUtils";
 import { getApiUrl } from "../../config/apiConfig";
@@ -14,23 +15,10 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { GoArrowUp, GoClock, GoCheckCircle, GoAlert, GoProject, GoGraph } from "react-icons/go";
+import { GoArrowUp, GoGraph } from "react-icons/go";
 import { buildFlowMetrics, clamp, createTaskTimelineItems } from "../../utils/analyticsUtils";
 
 const BOTTLENECK_DAYS = 7;
-
-const SummaryCard = ({ title, value, icon: Icon, color, subtitle }) => (
-  <div className="summary-card-compact" style={{ borderLeft: `3px solid ${color}` }}>
-    <div className="summary-card-icon-compact" style={{ backgroundColor: `${color}20` }}>
-      <Icon size={18} color={color} />
-    </div>
-    <div className="summary-card-content-compact">
-      <div className="summary-card-value-compact">{value}</div>
-      <div className="summary-card-title-compact">{title}</div>
-      {subtitle && <div className="summary-card-subtitle-compact">{subtitle}</div>}
-    </div>
-  </div>
-);
 
 const ChartCard = ({ title, children, className = "" }) => (
   <div className={`chart-card-compact ${className}`}>
@@ -76,34 +64,92 @@ const METRIC_INFO = {
 };
 
 const FlowMetricStrip = ({ metrics, bottleneckDays }) => {
+  const [tooltip, setTooltip] = useState(null);
+
+  const showTooltip = useCallback((e, text) => {
+    if (!e?.currentTarget) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const left = rect.left + rect.width / 2;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    // Placement choose: enough space ho to bottom, warna top.
+    const placement = spaceBelow < 130 && spaceAbove > spaceBelow ? "top" : "bottom";
+    const top = placement === "bottom" ? rect.bottom + 10 : rect.top - 10;
+
+    // Clamp left so tooltip off-screen na jaye (rough half-width assumption).
+    const half = 140; // tooltip width ~ 280px
+    const clampedLeft = Math.max(half + 12, Math.min(left, window.innerWidth - (half + 12)));
+
+    setTooltip({
+      text,
+      left: clampedLeft,
+      top,
+      placement,
+    });
+  }, []);
+
+  const hideTooltip = useCallback(() => setTooltip(null), []);
+
   if (!metrics) return null;
+
   return (
     <div className="gantt-metric-strip">
-      <div className="gantt-metric-item">
+      <div
+        className="gantt-metric-item"
+        onMouseEnter={(e) => showTooltip(e, METRIC_INFO.stuck)}
+        onMouseLeave={hideTooltip}
+      >
         <span className="gantt-metric-label">Stuck Tasks</span>
         <span className="gantt-metric-value">{metrics.stuckCount}</span>
-        <div className="metric-tooltip">{METRIC_INFO.stuck}</div>
       </div>
-      <div className="gantt-metric-item">
+      <div
+        className="gantt-metric-item"
+        onMouseEnter={(e) => showTooltip(e, METRIC_INFO.aging)}
+        onMouseLeave={hideTooltip}
+      >
         <span className="gantt-metric-label">Avg Aging WIP</span>
         <span className="gantt-metric-value">{metrics.avgAgingWipDays}d</span>
-        <div className="metric-tooltip">{METRIC_INFO.aging}</div>
       </div>
-      <div className="gantt-metric-item">
+      <div
+        className="gantt-metric-item"
+        onMouseEnter={(e) => showTooltip(e, METRIC_INFO.cycle)}
+        onMouseLeave={hideTooltip}
+      >
         <span className="gantt-metric-label">Avg Cycle Time</span>
         <span className="gantt-metric-value">{metrics.avgCycleTimeDays}d</span>
-        <div className="metric-tooltip">{METRIC_INFO.cycle}</div>
       </div>
-      <div className="gantt-metric-item">
+      <div
+        className="gantt-metric-item"
+        onMouseEnter={(e) => showTooltip(e, METRIC_INFO.throughput)}
+        onMouseLeave={hideTooltip}
+      >
         <span className="gantt-metric-label">Throughput (7d)</span>
         <span className="gantt-metric-value">{metrics.throughput7d}</span>
-        <div className="metric-tooltip">{METRIC_INFO.throughput}</div>
       </div>
-      <div className="gantt-metric-item">
+      <div
+        className="gantt-metric-item"
+        onMouseEnter={(e) => showTooltip(e, METRIC_INFO.threshold)}
+        onMouseLeave={hideTooltip}
+      >
         <span className="gantt-metric-label">Bottleneck Rule</span>
         <span className="gantt-metric-value">&gt; {bottleneckDays}d</span>
-        <div className="metric-tooltip">{METRIC_INFO.threshold}</div>
       </div>
+
+      {tooltip &&
+        createPortal(
+          <div
+            className={`metric-tooltip-portal ${tooltip.placement}`}
+            style={{
+              left: tooltip.left,
+              top: tooltip.top,
+            }}
+            role="tooltip"
+          >
+            {tooltip.text}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
@@ -241,6 +287,9 @@ const GanttChartView = ({ timelineItems, flowMetrics, zoomDays, onZoomChange, bo
                 .map((segment, segIndex) => {
                   const leftPos = getDatePosition(segment.startDate, startViewDate, daysInView);
                   const width = getBarWidth(segment.startDate, segment.endDate, daysInView);
+                  const availableWidth = Math.max(0, 99.8 - leftPos);
+                  if (availableWidth <= 0.1) return null;
+                  const safeWidth = Math.min(Math.max(0.5, width), availableWidth);
                   const tooltip = [
                     `Task: ${item.cardTitle}`,
                     `Status: ${segment.status}`,
@@ -262,7 +311,7 @@ const GanttChartView = ({ timelineItems, flowMetrics, zoomDays, onZoomChange, bo
                       }`}
                       style={{
                         left: `${leftPos}%`,
-                        width: `${Math.max(0.5, width)}%`,
+                        width: `${safeWidth}%`,
                         backgroundColor: segment.color,
                       }}
                       title={tooltip}
@@ -350,59 +399,6 @@ const Analytics = () => {
     loadAllData();
   }, [loadAllData]);
 
-  const totalTasks = useMemo(() => {
-    if (!analyticsData) return 0;
-    return (
-      (analyticsData.backlogTasks || 0) +
-      (analyticsData.todoTasks || 0) +
-      (analyticsData.inProgressTasks || 0) +
-      (analyticsData.completedTasks || 0)
-    );
-  }, [analyticsData]);
-
-  const completedPercentage = totalTasks > 0 ? Math.round(((analyticsData?.completedTasks || 0) / totalTasks) * 100) : 0;
-  const pendingCount =
-    (analyticsData?.backlogTasks || 0) +
-    (analyticsData?.todoTasks || 0) +
-    (analyticsData?.inProgressTasks || 0);
-  const pendingPercentage = totalTasks > 0 ? Math.round((pendingCount / totalTasks) * 100) : 0;
-
-  const dueSoonCount = useMemo(() => {
-    if (!cardsData || cardsData.length === 0) return analyticsData?.dueDateTasks || 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const sevenDaysLater = new Date(today);
-    sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-    sevenDaysLater.setHours(23, 59, 59, 999);
-
-    return cardsData.filter((card) => {
-      if (!card.dueDate || card.tag === "Done") return false;
-      const parts = card.dueDate.trim().split(" ");
-      if (parts.length < 2) return false;
-      const day = parseInt(parts[0], 10);
-      const monthMap = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11,
-      };
-      const month = monthMap[parts[1]];
-      const year = parts[2] ? parseInt(parts[2], 10) : today.getFullYear();
-      if (Number.isNaN(day) || month === undefined || Number.isNaN(year)) return false;
-      const dueDate = new Date(year, month, day);
-      dueDate.setHours(0, 0, 0, 0);
-      return dueDate >= today && dueDate <= sevenDaysLater;
-    }).length;
-  }, [cardsData, analyticsData]);
-
   const taskStatusData = [
     { name: "Backlog", value: analyticsData?.backlogTasks || 0, color: "#36A2EB" },
     { name: "To-do", value: analyticsData?.todoTasks || 0, color: "#FFCE56" },
@@ -485,9 +481,9 @@ const Analytics = () => {
 
         <div className="summary-cards-sidebar">
           <ChartCard title="Task Status Distribution" className="pie-chart-card-compact">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={210}>
               <PieChart>
-                <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={3} dataKey="value">
+                <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={40} outerRadius={82} paddingAngle={3} dataKey="value">
                   {taskStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -508,7 +504,7 @@ const Analytics = () => {
 
           <ChartCard title="Priority Distribution" className="bar-chart-card-compact">
             {priorityData.some((item) => item.value > 0) ? (
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={170}>
                 <BarChart data={priorityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
@@ -527,19 +523,6 @@ const Analytics = () => {
               </div>
             )}
           </ChartCard>
-
-          <div className="summary-cards-grid">
-            <SummaryCard title="Total Tasks" value={totalTasks} icon={GoProject} color="#246BFD" subtitle="All created tasks" />
-            <SummaryCard
-              title="Completed"
-              value={analyticsData.completedTasks || 0}
-              icon={GoCheckCircle}
-              color="#10B981"
-              subtitle={`${completedPercentage}% of total`}
-            />
-            <SummaryCard title="Pending" value={pendingCount} icon={GoClock} color="#F59E0B" subtitle={`${pendingPercentage}% of total`} />
-            <SummaryCard title="Due Soon" value={dueSoonCount} icon={GoAlert} color="#EF4444" subtitle="Next 7 days" />
-          </div>
         </div>
       </div>
     </div>

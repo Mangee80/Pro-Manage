@@ -329,15 +329,15 @@
 
 /* Chart cards in sidebar should have fixed heights */
 .summary-cards-sidebar .pie-chart-card-compact {
-  height: 260px;
-  min-height: 260px;
-  max-height: 260px;
+  height: 275px;
+  min-height: 275px;
+  max-height: 275px;
 }
 
 .summary-cards-sidebar .bar-chart-card-compact {
-  height: 190px;
-  min-height: 190px;
-  max-height: 190px;
+  height: 185px;
+  min-height: 185px;
+  max-height: 185px;
 }
 
 /* Chart Legend - Compact */
@@ -1061,6 +1061,9 @@
   min-width: 0;
   max-width: 100%;
   overflow-x: hidden;
+  padding-right: 10px;
+  box-sizing: border-box;
+  border-right: 1px solid #e2e8f0;
 }
 
 .gantt-month-row {
@@ -1156,9 +1159,10 @@
   min-height: 0;
   overflow-y: hidden;
   overflow-x: hidden;
-  padding-right: 4px;
+  padding-right: 10px;
   min-width: 0;
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 .gantt-row {
@@ -1252,6 +1256,8 @@
   border: 1px solid rgba(226, 232, 240, 0.5);
   min-width: 0;
   max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .gantt-bar {

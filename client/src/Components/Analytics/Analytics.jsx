@@ -481,9 +481,9 @@ const Analytics = () => {
 
         <div className="summary-cards-sidebar">
           <ChartCard title="Task Status Distribution" className="pie-chart-card-compact">
-            <ResponsiveContainer width="100%" height={190}>
+            <ResponsiveContainer width="100%" height={205}>
               <PieChart>
-                <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={36} outerRadius={72} paddingAngle={3} dataKey="value">
+                <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={40} outerRadius={78} paddingAngle={3} dataKey="value">
                   {taskStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -504,7 +504,7 @@ const Analytics = () => {
 
           <ChartCard title="Priority Distribution" className="bar-chart-card-compact">
             {priorityData.some((item) => item.value > 0) ? (
-              <ResponsiveContainer width="100%" height={160}>
+              <ResponsiveContainer width="100%" height={150}>
                 <BarChart data={priorityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="name" stroke="#6B7280" fontSize={12} />
